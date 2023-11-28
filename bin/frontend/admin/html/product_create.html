@@ -1,0 +1,30 @@
+<form>
+    <div>
+        <h1 style="text-align: center; font-size: 25px;" id="form-title">Add New Viand</h1>
+    </div>
+    <div>
+        <input type="hidden" id="id">
+    </div>
+    <div>
+        <label for="pname">Viand Name</label>
+        <input type="text" id="pname">
+    </div>
+    <div>
+        <label for="description">Description</label>
+        <input type="text" id="description">
+    </div>
+    <div>
+        <label for="price">Price</label>
+        <input type="text" id="price">
+    </div>
+    <div>
+        <label for="stock">Stock</label>
+        <input type="text" id="stock">
+    </div>
+    <div>
+    <div class="save">
+        <button id="cancel" type="button" onclick="cancelStudentUpdate(event)">Cancel</button>
+        <button id="new-save" type="button" onclick="saveProduct(event)">Save</button>
+        <button id="edit-save" type="button" onclick="updateSaveProduct(event)">Save Changes</button>
+    </div>
+</form>

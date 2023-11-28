@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyMarket Management System</title>
+    <link rel="stylesheet" type="text/css" href="/css-main">
+</head>
+<body>
+    <div class="nav">
+        <h1 id="company-name">SkyMarket Management System</h1>
+        <ul>
+            <li class="active" id="nav-products"><a onclick="loadProducts(event)">Viands</a></li>
+            <li id="nav-transactions"><a onclick="loadProducts(event)">Users</a></li>
+            <li id="nav-transactions"><a onclick="loadProducts(event)">Transactions</a> </li>
+        </ul>
+    </div>
+
+    <button id="show-form-button">Add New Viand</button>
+
+    <div id="create-form" style="display: none;">
+    </div>
+    
+    <div class="content">    
+    </div>
+    
+    <script src="/js-product"></script>
+    <script src="/js-main"></script>
+</body>
+</html>
