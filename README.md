@@ -166,4 +166,3 @@ SkyMarket aims to provide a seamless and secure online shopping experience for u
 Run Command:
 cd C:\xampp\htdocs\Projects\E-Commerce\
 php -S localhost:9999 src\backend\api\php\AdminManagementServer.php
->>>>>>> 9c8990d (new file:   .vscode/settings.json)
