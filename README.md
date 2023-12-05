@@ -1,5 +1,5 @@
 <<<<<<< HEAD
-# SkyMarket
+# SkyMarket - Online Ordering Mobile Application
 SkyMarket 
 =======
 I'm gonna create a e-commerce mobile application, something like McDo app or FoodPanda. In this app, users can choose what item to order and pay and then that transaction saves into the database using SQL. In the mobile app, I'm gonna use React Native as front-end and PHP as back-end. This app is for the clients.
@@ -166,6 +166,7 @@ SkyMarket aims to provide a seamless and secure online shopping experience for u
 Run Command:
 cd C:\xampp\htdocs\Projects\E-Commerce\
 php -S localhost:9999 src\backend\api\php\AdminManagementServer.php
+<<<<<<< HEAD
 
 
 ### SQL Queries
