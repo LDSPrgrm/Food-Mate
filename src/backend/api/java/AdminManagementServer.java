@@ -20,7 +20,7 @@ import java.sql.Statement;
 import org.json.*;
 
 public class AdminManagementServer {
-    static final String URL = "jdbc:mariadb://127.0.0.1:3301/ecommerce";
+    static final String URL = "jdbc:mariadb://127.0.0.1:3301/foodmate_db";
     static final String USER = "root";
     static final String PASSWORD = "admin"; 
     public static void main(String[] args) {
@@ -30,6 +30,11 @@ public class AdminManagementServer {
 
             // Main page
             server.createContext("/", exchange -> {
+                contextCreation(exchange, "src/frontend/admin/html/index.html","text/html");
+            });
+
+            // Main page
+            server.createContext("/dashboard", exchange -> {
                 contextCreation(exchange, "src/frontend/admin/html/index.html","text/html");
             });
 
@@ -420,6 +425,440 @@ public class AdminManagementServer {
                 contextCreation(exchange, "src\\frontend\\admin\\js\\product.js","text/javascript");
             });
 
+
+
+
+            // Users
+            server.createContext("/users", exchange -> {
+                try {
+                    Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
+                    String sql = "SELECT * FROM user";
+                    PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
+                    ResultSet resultSet = preparedStatement.executeQuery();
+
+                    JSONArray jsonArray = new JSONArray();
+                    while(resultSet.next()) {
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("user_id", resultSet.getInt("user_id"));
+                        jsonObject.put("role_id", resultSet.getInt("role_id"));
+                        jsonObject.put("username", resultSet.getString("username"));
+                        jsonObject.put("password", resultSet.getString("password"));
+                        jsonObject.put("first_name", resultSet.getString("first_name"));
+                        jsonObject.put("middle_name", resultSet.getString("middle_name"));
+                        jsonObject.put("last_name", resultSet.getString("last_name"));
+                        jsonObject.put("birthdate", resultSet.getString("birthdate"));
+                        jsonObject.put("sex", resultSet.getString("sex"));
+                        jsonObject.put("civil_status", resultSet.getString("civil_status"));
+                        jsonObject.put("email", resultSet.getString("email"));
+                        jsonArray.put(jsonObject);
+                    }
+
+                    String json = jsonArray.toString();
+                    exchange.getResponseHeaders().set("Content-Type", "application/json");
+                    exchange.sendResponseHeaders(200, json.length());
+
+                    OutputStream outputStream = exchange.getResponseBody();
+                    outputStream.write(json.getBytes());
+
+                    outputStream.close();
+                    preparedStatement.close();
+                    dbConnection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            });
+
+            server.createContext("/user-search", exchange -> {
+                String keyword = exchange.getRequestURI().getQuery().substring(2);
+                try {
+                    Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
+                    String sql = "SELECT * FROM user a INNER JOIN `role` b ON a.role_id = b.role_id WHERE role_name LIKE ?" +
+                                    "OR username LIKE ?" + 
+                                    "OR password LIKE ?" +
+                                    "OR first_name LIKE ?" +
+                                    "OR middle_name LIKE ?" +
+                                    "OR middle_name LIKE ?" +
+                                    "OR last_name LIKE ?" +
+                                    "OR birthdate LIKE ?" +
+                                    "OR sex LIKE ?" +
+                                    "OR civil_status LIKE ?" +
+                                    "OR email LIKE ?";
+                    PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
+
+                    preparedStatement.setString(1, "%" + keyword + "%");
+                    preparedStatement.setString(2, "%" + keyword + "%");
+                    preparedStatement.setString(3, "%" + keyword + "%");
+                    preparedStatement.setString(4, "%" + keyword + "%");
+                    preparedStatement.setString(5, "%" + keyword + "%");
+                    preparedStatement.setString(6, "%" + keyword + "%");
+                    preparedStatement.setString(7, "%" + keyword + "%");
+                    preparedStatement.setString(8, "%" + keyword + "%");
+                    preparedStatement.setString(9, "%" + keyword + "%");
+                    preparedStatement.setString(10, "%" + keyword + "%");
+                    preparedStatement.setString(11, "%" + keyword + "%");
+
+                    userContextCreation(exchange, dbConnection, preparedStatement, sql);
+                }
+                catch(SQLException sqlE) {
+                    sqlE.printStackTrace();
+                }
+            });
+
+            server.createContext("/user-add", exchange -> {
+                if ("POST".equals(exchange.getRequestMethod())) {
+                    InputStreamReader isr = new InputStreamReader(exchange.getRequestBody(), "utf-8");
+                    BufferedReader br = new BufferedReader(isr);
+                    StringBuilder requestBody = new StringBuilder();
+
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        requestBody.append(line);
+                    }
+                    
+                    try {
+                        Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
+
+                        JSONObject json = new JSONObject(requestBody.toString());
+                        int role_id = json.getInt("role_id");
+                        String username = json.getString("username");
+                        String password = json.getString("password");
+                        String firstName = json.getString("first_name");
+                        String middleName = json.getString("middle_name");
+                        String lastName = json.getString("last_name");
+                        String birthdate = json.getString("birthdate");
+                        String sex = json.getString("sex");
+                        String civilStatus = json.getString("civil_status");
+                        String email = json.getString("email");
+
+                        //SQL query to insert data
+                        String sql = "INSERT INTO user(role_id, username, password, " + 
+                                        "first_name, middle_name, last_name, " +
+                                        "birthdate, sex, civil_status, email) " +
+                                        "VALUES(?,?,?,?,?,?,?,?,?,?)";
+
+                        //Create a PreparedStatement
+                        PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
+                        preparedStatement.setInt(1, role_id);
+                        preparedStatement.setString(2, username);
+                        preparedStatement.setString(3, password);
+                        preparedStatement.setString(4, firstName);
+                        preparedStatement.setString(5, middleName);
+                        preparedStatement.setString(6, lastName);
+                        preparedStatement.setString(7, birthdate);
+                        preparedStatement.setString(8, sex);
+                        preparedStatement.setString(9, civilStatus);
+                        preparedStatement.setString(10, email);
+
+                        //Execute the INSERT command
+                        preparedStatement.executeUpdate();
+
+                        sql = "SELECT * FROM user";
+                        selectAllProducts(dbConnection, exchange, sql);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        String response = "Error adding a new entry.";
+                        exchange.getResponseHeaders().set("Content-Type", "text/plain");
+                        exchange.sendResponseHeaders(500, response.length()); // 500 Internal Server Error
+
+                        OutputStream os = exchange.getResponseBody();
+                        os.write(response.getBytes());
+                        os.close();
+                    }
+                } else {
+                    // Handle invalid HTTP method (e.g., not POST)
+                    String response = "Invalid request.";
+                    exchange.getResponseHeaders().set("Content-Type", "text/plain");
+                    exchange.sendResponseHeaders(405, response.length());
+
+                    OutputStream os = exchange.getResponseBody();
+                    os.write(response.getBytes());
+                    os.close();
+                }
+            });
+
+            server.createContext("/user-delete", exchange -> {
+                if ("DELETE".equals(exchange.getRequestMethod())){
+                    // Extract the item ID to be deleted from the request, for example, from the URI
+                    String id = exchange.getRequestURI().getQuery().substring(3);
+                                        
+                    try{
+                        Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
+
+                        // SQL query to delete data
+                        String sql = "DELETE FROM user WHERE product_id = ?";
+
+                        resetAutoIncrement(dbConnection, sql, "user", id);
+
+                        sql = "SELECT * FROM user";
+                        selectAllProducts(dbConnection, exchange, sql);
+                    } catch(SQLException e) {
+                        e.printStackTrace();
+                    }
+
+                } else {
+                    // Handle invalid HTTP method
+                    String response = "Invalid HTTP method. Only DELETE requests are accepted.";
+                    exchange.sendResponseHeaders(405, response.length());
+                    exchange.getResponseBody().write(response.getBytes());
+                }	
+            });
+
+            
+            server.createContext("/user-update", exchange -> {
+                // Extract the item ID to be deleted from the request, for example, from the URI
+                String id = exchange.getRequestURI().getQuery().substring(3);
+            
+                try {
+                    Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
+                    
+                    //SQL query to fetch single row
+                    String sql = "SELECT * FROM user WHERE user_id = ?";
+                    //Create a PreparedStatement
+                    PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
+                    preparedStatement.setInt(1, Integer.parseInt(id));
+            
+                    //Execute query
+                    ResultSet resultSet = preparedStatement.executeQuery();
+                    JSONObject jsonObject = new JSONObject();
+                    while(resultSet.next()){
+                        jsonObject.put("user_id", resultSet.getInt("user_id"));
+                        jsonObject.put("role_id", resultSet.getInt("role_id"));
+                        jsonObject.put("username", resultSet.getString("username"));
+                        jsonObject.put("password", resultSet.getString("password"));
+                        jsonObject.put("first_name", resultSet.getString("first_name"));
+                        jsonObject.put("middle_name", resultSet.getString("middle_name"));
+                        jsonObject.put("last_name", resultSet.getString("last_name"));
+                        jsonObject.put("birthdate", resultSet.getString("birthdate"));
+                        jsonObject.put("sex", resultSet.getString("sex"));
+                        jsonObject.put("civil_status", resultSet.getString("civil_status"));
+                        jsonObject.put("email", resultSet.getString("email"));
+
+                    }
+                    //Convert JSON array object to String
+                    String jsonString = jsonObject.toString();
+                    //Close prepared statement
+                    preparedStatement.close();   
+                    //Close database connection
+                    dbConnection.close();
+                    
+                    // Send a response
+                    exchange.getResponseHeaders().set("Content-Type", "application/json");
+                    exchange.sendResponseHeaders(200, jsonString.length());
+
+                    OutputStream os = exchange.getResponseBody();
+                    os.write(jsonString.getBytes());
+                    os.close();
+                }catch(SQLException e){
+                      throw new RuntimeException("An error occurred", e);
+                }
+            });  
+
+            server.createContext("/user-update-save", exchange -> {
+                if ("PUT".equals(exchange.getRequestMethod())) {
+                    InputStreamReader isr = new InputStreamReader(exchange.getRequestBody(), "utf-8");
+                    BufferedReader br = new BufferedReader(isr);
+                    StringBuilder requestBody = new StringBuilder();
+                    
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        requestBody.append(line);
+                    }
+                    // Parse the JSON and extract data using JSONObject
+                    try {
+                        JSONObject json = new JSONObject(requestBody.toString());
+
+                        int id = json.getInt("user_id");
+                        int role_id = json.getInt("role_id");
+                        String username = json.getString("username");
+                        String password = json.getString("password");
+                        String firstName = json.getString("first_name");
+                        String middleName = json.getString("middle_name");
+                        String lastName = json.getString("last_name");
+                        String birthdate = json.getString("birthdate");
+                        String sex = json.getString("sex");
+                        String civilStatus = json.getString("civil_status");
+                        String email = json.getString("email");
+
+                        Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
+
+                        //SQL query to update data
+                        String sql = "UPDATE user SET role_id = ?, username = ?, password = ?, " +
+                                        "first_name = ?, middle_name = ?, last_name = ?, " +
+                                        "birthdate = ?, sex = ?, civil_status = ?, email = ? WHERE user_id = ?";
+                        
+                        //Create a PreparedStatement
+                        PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
+                        preparedStatement.setInt(1, role_id);
+                        preparedStatement.setString(2, username);
+                        preparedStatement.setString(3, password);
+                        preparedStatement.setString(4, firstName);
+                        preparedStatement.setString(5, middleName);
+                        preparedStatement.setString(6, lastName);
+                        preparedStatement.setString(7, birthdate);
+                        preparedStatement.setString(8, sex);
+                        preparedStatement.setString(9, civilStatus);
+                        preparedStatement.setString(10, email);
+                        preparedStatement.setInt(11, id);
+                        
+                        //Execute the UPDATE command
+                        preparedStatement.executeUpdate();
+
+                        sql = "SELECT * FROM user";
+                        selectAllUsers(dbConnection, exchange, sql);
+                        
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        // Handle errors and send an error response
+                        String response = "Error updating the entry.";
+                        exchange.getResponseHeaders().set("Content-Type", "text/plain");
+                        exchange.sendResponseHeaders(500, response.length()); // 500 Internal Server Error
+
+                        OutputStream os = exchange.getResponseBody();
+                        os.write(response.getBytes());
+                        os.close();
+                    }
+            
+                } else {
+                    // Handle invalid HTTP method (e.g., not POST)
+                    String response = "Method not allowed.";
+                    exchange.getResponseHeaders().set("Content-Type", "text/plain");
+                    exchange.sendResponseHeaders(405, response.length()); // 405 Method Not Allowed
+
+                    OutputStream os = exchange.getResponseBody();
+                    os.write(response.getBytes());
+                    os.close();
+                }   
+            });
+
+            // Add this block within your existing server.createContext("/product-status", ...) block
+            server.createContext("/product-status", exchange -> {
+                try {
+                    // Extract the product ID from the request, for example, from the URI
+                    String productId = exchange.getRequestURI().getQuery().substring(3);
+
+                    // Fetch the current status of the product from the database
+                    Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
+                    String sql = "SELECT status_id FROM product WHERE product_id = ?";
+                    PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
+                    preparedStatement.setInt(1, Integer.parseInt(productId));
+                    ResultSet resultSet = preparedStatement.executeQuery();
+
+                    JSONObject jsonResponse = new JSONObject();
+                    if (resultSet.next()) {
+                        int currentStatusId = resultSet.getInt("status_id");
+                        jsonResponse.put("status_id", currentStatusId);
+                    } else {
+                        // Handle the case where the product ID is not found
+                        jsonResponse.put("error", "Product not found");
+                    }
+
+                    // Convert JSON response to String
+                    String jsonString = jsonResponse.toString();
+
+                    // Send the response to the client
+                    exchange.getResponseHeaders().set("Content-Type", "application/json");
+                    exchange.sendResponseHeaders(200, jsonString.length());
+
+                    OutputStream os = exchange.getResponseBody();
+                    os.write(jsonString.getBytes());
+                    os.close();
+
+                    // Close resources
+                    resultSet.close();
+                    preparedStatement.close();
+                    dbConnection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    // Handle database error
+                    exchange.sendResponseHeaders(500, 0); // 500 Internal Server Error
+                    exchange.getResponseBody().close();
+                }
+            });
+
+            server.createContext("/product-toggle-status", exchange -> {
+                if ("PUT".equals(exchange.getRequestMethod())) {
+                    try {
+                        String query = exchange.getRequestURI().getQuery();
+                        int queryLength = query.length();
+
+                        // Extract the product ID and new status from the request, for example, from the URI
+                        String productId = "";
+                        String newStatusId = "";
+                        if(queryLength == 13) {
+                            productId = query.substring(3, 4);
+                            newStatusId = query.substring(12);
+                        } else if(queryLength == 14) {
+                            productId = query.substring(3, 5);
+                            newStatusId = query.substring(13);
+                        } else if(queryLength == 15) {
+                            productId = query.substring(3, 6);
+                            newStatusId = query.substring(14);
+                        } 
+
+                        // Update the status of the product in the database
+                        Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
+                        String sql = "UPDATE product SET status_id = ? WHERE product_id = ?";
+                        PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
+                        preparedStatement.setInt(1, Integer.parseInt(newStatusId));
+                        preparedStatement.setInt(2, Integer.parseInt(productId));
+            
+                        // Execute the update
+                        int rowsUpdated = preparedStatement.executeUpdate();
+            
+                        // Check if the update was successful
+                        if (rowsUpdated > 0) {
+                            // Return the updated product information, if needed
+                            // You can fetch the updated product details and send them in the response
+                            // Alternatively, you can just send a success status without additional data
+            
+                            // For demonstration purposes, we'll return a success message
+                            JSONObject jsonResponse = new JSONObject();
+                            jsonResponse.put("message", "Status updated successfully");
+            
+                            // Convert JSON response to String
+                            String jsonString = jsonResponse.toString();
+            
+                            // Send the response to the client
+                            exchange.getResponseHeaders().set("Content-Type", "application/json");
+                            exchange.sendResponseHeaders(200, jsonString.length());
+            
+                            OutputStream os = exchange.getResponseBody();
+                            os.write(jsonString.getBytes());
+                            os.close();
+                        } else {
+                            // Handle the case where the product ID is not found
+                            exchange.sendResponseHeaders(404, 0); // 404 Not Found
+                            exchange.getResponseBody().close();
+                        }
+            
+                        // Close resources
+                        preparedStatement.close();
+                        dbConnection.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        // Handle database error
+                        exchange.sendResponseHeaders(500, 0); // 500 Internal Server Error
+                        exchange.getResponseBody().close();
+                    }
+                } else {
+                    // Handle invalid HTTP method
+                    exchange.sendResponseHeaders(405, 0); // 405 Method Not Allowed
+                    exchange.getResponseBody().close();
+                }
+            });
+            
+            server.createContext("/user-content", exchange -> {
+                contextCreation(exchange, "src/frontend/admin/html/users.html","text/html");
+            });
+
+            server.createContext("/user-create", exchange -> {
+                contextCreation(exchange, "src/frontend/admin/html/user_create.html","text/html");
+            });
+
+            server.createContext("/js-user", exchange -> {
+                contextCreation(exchange, "src/frontend/admin/js/user.js","text/javascript");
+            });
+
             server.setExecutor(null);
             server.start();
             System.out.println("Server is running at http://localhost:" + port);
@@ -495,6 +934,85 @@ public class AdminManagementServer {
                 jsonArr.put(jsonObject);
             }
             String json = jsonArr.toString();
+            
+            exchange.getResponseHeaders().set("Content-Type", "application/json");
+            exchange.sendResponseHeaders(200, json.length());
+
+            OutputStream os = exchange.getResponseBody();
+            os.write(json.getBytes());
+            os.close();
+            
+            //Close prepared statement
+            preparedStatement.close();          
+
+            //Close database connection
+            dbConnection.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void userContextCreation(HttpExchange exchange, Connection dbConnection, PreparedStatement preparedStatement, String sql) {
+        try {
+            JSONArray jsonArray = new JSONArray();
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while(resultSet.next()) {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("user_id", resultSet.getInt("user_id"));
+                jsonObject.put("role_id", resultSet.getInt("role_id"));
+                jsonObject.put("username", resultSet.getString("username"));
+                jsonObject.put("password", resultSet.getString("password"));
+                jsonObject.put("first_name", resultSet.getString("first_name"));
+                jsonObject.put("middle_name", resultSet.getString("middle_name"));
+                jsonObject.put("last_name", resultSet.getString("last_name"));
+                jsonObject.put("birthdate", resultSet.getString("birthdate"));
+                jsonObject.put("sex", resultSet.getString("sex"));
+                jsonObject.put("civil_status", resultSet.getString("civil_status"));
+                jsonObject.put("email", resultSet.getString("email"));
+                jsonArray.put(jsonObject);
+            }
+
+            String json = jsonArray.toString();
+            exchange.getResponseHeaders().set("Content-Type", "application/json");
+            exchange.sendResponseHeaders(200, json.length());
+
+            OutputStream outputStream = exchange.getResponseBody();
+            outputStream.write(json.getBytes());
+
+            outputStream.close();
+            preparedStatement.close();
+            dbConnection.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void selectAllUsers(Connection dbConnection, HttpExchange exchange, String sql) {
+        try {
+            //Prepare statement
+            PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
+
+            //Execute query
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            // Iterate the result set
+            JSONArray jsonArray = new JSONArray();
+            while(resultSet.next()){
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("user_id", resultSet.getInt("user_id"));
+                jsonObject.put("role_id", resultSet.getInt("role_id"));
+                jsonObject.put("username", resultSet.getString("username"));
+                jsonObject.put("password", resultSet.getString("password"));
+                jsonObject.put("first_name", resultSet.getString("first_name"));
+                jsonObject.put("middle_name", resultSet.getString("middle_name"));
+                jsonObject.put("last_name", resultSet.getString("last_name"));
+                jsonObject.put("birthdate", resultSet.getString("birthdate"));
+                jsonObject.put("sex", resultSet.getString("sex"));
+                jsonObject.put("civil_status", resultSet.getString("civil_status"));
+                jsonObject.put("email", resultSet.getString("email"));
+                jsonArray.put(jsonObject);
+            }
+            String json = jsonArray.toString();
             
             exchange.getResponseHeaders().set("Content-Type", "application/json");
             exchange.sendResponseHeaders(200, json.length());

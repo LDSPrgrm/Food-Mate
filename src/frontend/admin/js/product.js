@@ -344,7 +344,7 @@ function refreshProducts(row, rows) {
     table.appendChild(tr);
 }
 
-function cancelStudentUpdate(event) {
+function cancelProductUpdate(event) {
     event.preventDefault();
 
     const id = document.getElementById("id");

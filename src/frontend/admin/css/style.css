@@ -29,6 +29,7 @@ label {
 
 input[type="text"],
 input[type="date"],
+input[type="password"],
 select {
     width: 95%;
     margin: auto;
@@ -38,13 +39,31 @@ select {
     margin-top: 5px;
 }
 
+/* ... Your existing styles ... */
+
+.nav {
+    background-color: #333;
+    padding: 10px 0;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 225px; /* Default width */
+    transition: width 0.3s ease; /* Add a smooth transition effect for width changes */
+    overflow-y: auto; /* Add vertical scroll if content exceeds the viewport */
+}
+
 .content {
     margin: 20px;
     background-color: #fff;
     padding: 20px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-left: 245px; /* Adjust the left margin to accommodate the navigation width */
 }
+
+/* ... Your existing styles ... */
+
 
 button {
     text-decoration: none;
@@ -190,7 +209,7 @@ table {
 }
 
 th, td {
-    padding: 10px;
+    padding: 5px;
     text-align: center;
     border-bottom: 1px solid #ddd;
 }
@@ -198,17 +217,6 @@ th, td {
 th {
     background-color: #086f5a;
     color: #fff;
-}
-
-.nav {
-    background-color: #333;
-    padding: 10px 0;
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 225px; /* Default width */
-    transition: width 0.3s ease; /* Add a smooth transition effect for width changes */
 }
 
 ul {

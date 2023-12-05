@@ -10,9 +10,10 @@
     <div class="nav">
         <h1 id="company-name">SkyMarket Management System</h1>
         <ul>
+            <li id="nav-dashboard"><a onclick="loadDashboard(event)">Dashboard</a></li>
             <li class="active" id="nav-products"><a onclick="loadProducts(event)">Viands</a></li>
-            <li id="nav-transactions"><a onclick="loadProducts(event)">Users</a></li>
-            <li id="nav-transactions"><a onclick="loadProducts(event)">Transactions</a> </li>
+            <li id="nav-users"><a onclick="loadUsers(event)">Users</a></li>
+            <li id="nav-transactions"><a onclick="loadTransactions(event)">Transactions</a> </li>
         </ul>
     </div>
 
@@ -24,6 +25,7 @@
     <div class="content">    
     </div>
     
+    <script src="/js-user"></script>
     <script src="/js-product"></script>
     <script src="/js-main"></script>
 </body>
