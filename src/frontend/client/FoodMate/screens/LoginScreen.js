@@ -1,46 +1,21 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
-  SafeAreaView,
   View,
   Text,
   TouchableOpacity,
-  Alert,
+  Image
 } from 'react-native';
-import axios from 'axios';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import CustomButton from '../components/CustomButton';
 import InputField from '../components/InputField';
 
+import { AuthContext } from '../context/AuthContext';
+
 const LoginScreen = ({navigation}) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleLogin = async () => {
-    try {
-      const response = await axios.post(
-        'http://192.168.109.155/Projects/E-Commerce/src/backend/api/php/client/get_users.php',
-        { 
-          username: username,
-          password: password,
-        },
-        { headers: { 'Content-Type': 'application/json' } }
-      );
-
-      if (response.data && response.data.role_id === 2) {
-        // User exists, navigate to the next screen or perform other actions
-        // You might want to store the user data in a global state or context
-        user = response.data;
-        const title = user.sex === "M" ? "Sir" : "Ma'am";
-        console.log('Hello ', title, user.first_name, ' ', user.last_name, '!');
-        navigation.navigate('Home');
-      } else {
-        // User doesn't exist or credentials are incorrect
-        Alert.alert('Login Failed', 'Invalid credentials. Please check your username or password.');
-      }
-    } catch (error) {
-      Alert.alert('Login Failed', 'An error occurred during login.');
-    }
-  };
+  const {login} = useContext(AuthContext);
+  const [username, setUsername] = useState(null);
+  const [password, setPassword] = useState(null);
 
   return (
     <SafeAreaView style={{flex: 1, justifyContent: 'center'}}>
@@ -50,69 +25,101 @@ const LoginScreen = ({navigation}) => {
 
         <Text
           style={{
-            fontSize: 28,
+            fontSize: 30,
             fontWeight: '500',
-            color: '#333',
-            marginBottom: 30,
+            color: '#0A0A0F',
+            alignSelf: 'center',
           }}>
           Login
         </Text>
 
         <InputField
+          icon='usernameIcon'
           label={'Username'}
           keyboardType="default"
           onInputChange={(text) => setUsername(text)}
         />
 
         <InputField
+          icon='passwordIcon'
           label={'Password'}
           inputType="password"
-          fieldButtonLabel={"Forgot Password?"}
           fieldButtonFunction={() => {}}
           onInputChange={(text) => setPassword(text)}
         />
         
-        <CustomButton label={"Login"} onPress={(handleLogin)} />
+      <TouchableOpacity onPress={(null)}>
+        <Text style={{ color: '#3EB075', fontWeight: '700', marginTop: 10, marginBottom: 0, alignSelf: 'flex-end', fontSize: 17 }}>
+          Forgot Password?
+        </Text>
+      </TouchableOpacity>
+        
+        <CustomButton label={"Login"} onPress={() => {login(username, password)}} />
 
-        <Text style={{textAlign: 'center', color: '#666', marginBottom: 30}}>
+        <Text style={{textAlign: 'center', color: '#666', marginVertical: 15}}>
           or
         </Text>
 
         <View
           style={{
-            flexDirection: 'row',
             justifyContent: 'space-between',
             marginBottom: 30,
           }}>
           <TouchableOpacity
             onPress={() => {}}
             style={{
-              borderColor: '#ddd',
-              borderWidth: 2,
+              borderWidth: 1,
               borderRadius: 10,
-              paddingHorizontal: 30,
-              paddingVertical: 10,
+              paddingHorizontal: 15,
+              paddingVertical: 7,
+              marginBottom: 10,
+              flexDirection: 'row',
+              alignItems: 'center',
             }}>
+            <Image
+              source={require('../assets/images/misc/fb.png')}
+              style={{ width: 40, height: 40, borderRadius: 10}}
+            />
+            <View style={{ flex: 1, alignItems: 'center', }}>
+              <Text style={{fontSize: 16, fontWeight: 700}}>Continue with Facebook</Text>
+            </View>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {}}
             style={{
-              borderColor: '#ddd',
-              borderWidth: 2,
+              borderWidth: 1,
               borderRadius: 10,
-              paddingHorizontal: 30,
-              paddingVertical: 10,
+              paddingHorizontal: 15,
+              paddingVertical: 7,
+              marginBottom: 10,
+              flexDirection: 'row',
+              alignItems: 'center',
             }}>
+            <Image
+              source={require('../assets/images/misc/google.png')}
+              style={{ width: 40, height: 40, borderRadius: 10}}
+            />
+            <View style={{ flex: 1, alignItems: 'center', }}>
+              <Text style={{fontSize: 16, fontWeight: 700}}>Continue with Google</Text>
+            </View>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {}}
             style={{
-              borderColor: '#ddd',
-              borderWidth: 2,
+              borderWidth: 1,
               borderRadius: 10,
-              paddingHorizontal: 30,
-              paddingVertical: 10,
+              paddingHorizontal: 15,
+              paddingVertical: 7,
+              flexDirection: 'row',
+              alignItems: 'center',
             }}>
+            <Image
+              source={require('../assets/images/misc/apple.png')}
+              style={{ width: 40, height: 40, borderRadius: 10}}
+            />
+            <View style={{ flex: 1, alignItems: 'center', }}>
+              <Text style={{fontSize: 16, fontWeight: 700}}>Continue with Apple</Text>
+            </View>
           </TouchableOpacity>
         </View>
 
@@ -122,9 +129,9 @@ const LoginScreen = ({navigation}) => {
             justifyContent: 'center',
             marginBottom: 30,
           }}>
-          <Text>Don't have an account yet? </Text>
+          <Text style={{fontSize: 17}}>Don't have an account yet? </Text>
           <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-            <Text style={{color: '#AD40AF', fontWeight: '700'}}>Register here</Text>
+            <Text style={{color: '#3EB075', fontWeight: '700', fontSize: 17}}>Register here</Text>
           </TouchableOpacity>
         </View>
       </View>

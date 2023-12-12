@@ -1,12 +1,20 @@
-import React from 'react'
-import { View, Text } from 'react-native'
+// screens/CartScreen.js
+import React from 'react';
+import { View, Text, ScrollView } from 'react-native';
+import CartItem from '../components/CartItem';
 
-const CartScreen = () => {
+const CartScreen = ({ route }) => {
+  const cartItems = route.params?.cartItems || [];
+
   return (
-    <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
-      <Text>Cart Screen</Text>
-    </View>
-  )
-}
+    <ScrollView>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        {cartItems.map((item, index) => (
+          <CartItem key={index} product={item} />
+        ))}
+      </View>
+    </ScrollView>
+  );
+};
 
-export default CartScreen
+export default CartScreen;

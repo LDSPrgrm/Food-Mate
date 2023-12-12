@@ -17,10 +17,8 @@ $email = $data['email'];
 $sql = "INSERT INTO `user` (username, password, first_name, middle_name, last_name, birthdate, sex, civil_status, email) VALUES(?,?,?,?,?,?,?,?,?)";
 $stmt = $db_conn->prepare($sql);
 $stmt->bind_param("sssssssss", $username, $password, $firstName, $middleName, $lastName, $birthdate, $sex, $civilStatus, $email);
-$stmt->execute();
 
-$test = 0;
-if ($test == 0) {
+if ($stmt->execute()) {
     // User exists, fetch user data and send a success response with user information
     header('Content-Type: application/json');
     echo json_encode(['success' => true, 'message' => 'Registration successful.']);

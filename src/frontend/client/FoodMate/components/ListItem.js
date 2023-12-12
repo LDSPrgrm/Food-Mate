@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { windowWidth } from '../utils/Dimensions';
 
-export default function ListItem({photo, title, subTitle, isAvailable, price, onPress}) {
+export default function ListItem({photo, title, description, isAvailable, price, onPress}) {
   return (
     <View style={{
       flexDirection:'row',
@@ -18,15 +18,15 @@ export default function ListItem({photo, title, subTitle, isAvailable, price, on
         <View style={{width: windowWidth - 220}}>
           <Text
             style={{
-              color: '#333',
+              color: '#0A0A0F',
               fontSize: 14,
             }}>
-            {subTitle}
+            {description}
           </Text>
           <Text
             numberOfLines={1}
             style={{
-              color: '#333',
+              color: '#0A0A0F',
               fontSize: 14,
               textTransform: 'uppercase',
             }}>
@@ -45,9 +45,7 @@ export default function ListItem({photo, title, subTitle, isAvailable, price, on
           color: '#fff',
           textAlign: 'center',
           fontSize: 14,
-        }}>
-          {isAvailable == 'Yes' && 'Play'}
-          {isAvailable == 'No' && price}
+        }}>{price}
         </Text>
       </TouchableOpacity>
     </View>

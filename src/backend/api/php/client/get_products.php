@@ -1,5 +1,5 @@
 <?php
-    require "src\backend\api\php\client\db_connection.php";
+    require "db_connection.php";
 
     // Fetch product data from the database
     $sql = "SELECT * FROM product";

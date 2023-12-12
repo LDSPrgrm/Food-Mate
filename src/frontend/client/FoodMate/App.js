@@ -1,19 +1,17 @@
 import React from 'react';
-import { StatusBar } from 'react-native';
 
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import AuthStack from './navigation/AuthStack.js';
-// import AppStack from './navigation/AppStack.js';
+import AppStack from './navigation/AppStack.js';
+import AppNav from './navigation/AppNav.js';
+import { AuthProvider } from './context/AuthContext.js';
 
 function App() {
   return (
-    <NavigationContainer>
-      <StatusBar />
-      {/* <AppStack /> */}
-      <AuthStack />
-    </NavigationContainer>
+    <AuthProvider>
+      <AppNav />
+    </AuthProvider>
   );
 }
 
