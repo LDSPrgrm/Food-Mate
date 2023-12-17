@@ -52,7 +52,7 @@ public class AdminManagementServer {
             server.createContext("/products", exchange -> {
                 try {
                     Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
-                    String sql = "SELECT * FROM product";
+                    String sql = "SELECT * FROM products";
                     PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
                     ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -87,7 +87,7 @@ public class AdminManagementServer {
                 String keyword = exchange.getRequestURI().getQuery().substring(2);
                 try {
                     Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
-                    String sql = "SELECT * FROM product WHERE name LIKE ?" + 
+                    String sql = "SELECT * FROM products WHERE name LIKE ?" + 
                                     "OR description LIKE ?" +
                                     "OR price LIKE ?" +
                                     "OR stock LIKE ?";
@@ -126,7 +126,7 @@ public class AdminManagementServer {
                         int stock = json.getInt("stock");
                         
                         //SQL query to insert data
-                        String sql = "INSERT INTO product(name, description, price, stock) VALUES(?,?,?,?)";
+                        String sql = "INSERT INTO products(name, description, price, stock) VALUES(?,?,?,?)";
 
                         //Create a PreparedStatement
                         PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
@@ -138,7 +138,7 @@ public class AdminManagementServer {
                         //Execute the INSERT command
                         preparedStatement.executeUpdate();
 
-                        sql = "SELECT * FROM product";
+                        sql = "SELECT * FROM products";
                         selectAllProducts(dbConnection, exchange, sql);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -171,11 +171,11 @@ public class AdminManagementServer {
                         Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
 
                         // SQL query to delete data
-                        String sql = "DELETE FROM product WHERE product_id = ?";
+                        String sql = "DELETE FROM products WHERE product_id = ?";
 
                         resetAutoIncrement(dbConnection, sql, "product", id);
 
-                        sql = "SELECT * FROM product";
+                        sql = "SELECT * FROM products";
                         selectAllProducts(dbConnection, exchange, sql);
                     } catch(SQLException e) {
                         e.printStackTrace();
@@ -198,7 +198,7 @@ public class AdminManagementServer {
                     Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
                     
                     //SQL query to fetch single row
-                    String sql = "SELECT * FROM product WHERE product_id = ?";
+                    String sql = "SELECT * FROM products WHERE product_id = ?";
                     //Create a PreparedStatement
                     PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
                     preparedStatement.setInt(1, Integer.parseInt(id));
@@ -256,7 +256,7 @@ public class AdminManagementServer {
                         Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
 
                         //SQL query to update data
-                        String sql = "UPDATE product SET name = ?, description = ?, price = ?, stock = ? WHERE product_id = ?";
+                        String sql = "UPDATE products SET name = ?, description = ?, price = ?, stock = ? WHERE product_id = ?";
                         
                         //Create a PreparedStatement
                         PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
@@ -269,7 +269,7 @@ public class AdminManagementServer {
                         //Execute the UPDATE command
                         preparedStatement.executeUpdate();
 
-                        sql = "SELECT * FROM product";
+                        sql = "SELECT * FROM products";
                         selectAllProducts(dbConnection, exchange, sql);
                         
                     } catch (Exception e) {
@@ -304,7 +304,7 @@ public class AdminManagementServer {
 
                     // Fetch the current status of the product from the database
                     Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
-                    String sql = "SELECT status_id FROM product WHERE product_id = ?";
+                    String sql = "SELECT status_id FROM products WHERE product_id = ?";
                     PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
                     preparedStatement.setInt(1, Integer.parseInt(productId));
                     ResultSet resultSet = preparedStatement.executeQuery();
@@ -362,7 +362,7 @@ public class AdminManagementServer {
 
                         // Update the status of the product in the database
                         Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
-                        String sql = "UPDATE product SET status_id = ? WHERE product_id = ?";
+                        String sql = "UPDATE products SET status_id = ? WHERE product_id = ?";
                         PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
                         preparedStatement.setInt(1, Integer.parseInt(newStatusId));
                         preparedStatement.setInt(2, Integer.parseInt(productId));
@@ -432,7 +432,7 @@ public class AdminManagementServer {
             server.createContext("/users", exchange -> {
                 try {
                     Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
-                    String sql = "SELECT * FROM user";
+                    String sql = "SELECT * FROM users";
                     PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
                     ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -472,7 +472,7 @@ public class AdminManagementServer {
                 String keyword = exchange.getRequestURI().getQuery().substring(2);
                 try {
                     Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
-                    String sql = "SELECT * FROM user a INNER JOIN `role` b ON a.role_id = b.role_id WHERE role_name LIKE ?" +
+                    String sql = "SELECT * FROM users a INNER JOIN `roles` b ON a.role_id = b.role_id WHERE role_name LIKE ?" +
                                     "OR username LIKE ?" + 
                                     "OR password LIKE ?" +
                                     "OR first_name LIKE ?" +
@@ -531,7 +531,7 @@ public class AdminManagementServer {
                         String email = json.getString("email");
 
                         //SQL query to insert data
-                        String sql = "INSERT INTO user(role_id, username, password, " + 
+                        String sql = "INSERT INTO users(role_id, username, password, " + 
                                         "first_name, middle_name, last_name, " +
                                         "birthdate, sex, civil_status, email) " +
                                         "VALUES(?,?,?,?,?,?,?,?,?,?)";
@@ -552,7 +552,7 @@ public class AdminManagementServer {
                         //Execute the INSERT command
                         preparedStatement.executeUpdate();
 
-                        sql = "SELECT * FROM user";
+                        sql = "SELECT * FROM users";
                         selectAllProducts(dbConnection, exchange, sql);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -585,11 +585,11 @@ public class AdminManagementServer {
                         Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
 
                         // SQL query to delete data
-                        String sql = "DELETE FROM user WHERE product_id = ?";
+                        String sql = "DELETE FROM users WHERE product_id = ?";
 
-                        resetAutoIncrement(dbConnection, sql, "user", id);
+                        resetAutoIncrement(dbConnection, sql, "users", id);
 
-                        sql = "SELECT * FROM user";
+                        sql = "SELECT * FROM users";
                         selectAllProducts(dbConnection, exchange, sql);
                     } catch(SQLException e) {
                         e.printStackTrace();
@@ -612,7 +612,7 @@ public class AdminManagementServer {
                     Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
                     
                     //SQL query to fetch single row
-                    String sql = "SELECT * FROM user WHERE user_id = ?";
+                    String sql = "SELECT * FROM users WHERE user_id = ?";
                     //Create a PreparedStatement
                     PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
                     preparedStatement.setInt(1, Integer.parseInt(id));
@@ -682,7 +682,7 @@ public class AdminManagementServer {
                         Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
 
                         //SQL query to update data
-                        String sql = "UPDATE user SET role_id = ?, username = ?, password = ?, " +
+                        String sql = "UPDATE users SET role_id = ?, username = ?, password = ?, " +
                                         "first_name = ?, middle_name = ?, last_name = ?, " +
                                         "birthdate = ?, sex = ?, civil_status = ?, email = ? WHERE user_id = ?";
                         
@@ -703,7 +703,7 @@ public class AdminManagementServer {
                         //Execute the UPDATE command
                         preparedStatement.executeUpdate();
 
-                        sql = "SELECT * FROM user";
+                        sql = "SELECT * FROM users";
                         selectAllUsers(dbConnection, exchange, sql);
                         
                     } catch (Exception e) {
@@ -738,7 +738,7 @@ public class AdminManagementServer {
 
                     // Fetch the current status of the product from the database
                     Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
-                    String sql = "SELECT status_id FROM product WHERE product_id = ?";
+                    String sql = "SELECT status_id FROM products WHERE product_id = ?";
                     PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
                     preparedStatement.setInt(1, Integer.parseInt(productId));
                     ResultSet resultSet = preparedStatement.executeQuery();
@@ -797,7 +797,7 @@ public class AdminManagementServer {
 
                         // Update the status of the product in the database
                         Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
-                        String sql = "UPDATE product SET status_id = ? WHERE product_id = ?";
+                        String sql = "UPDATE products SET status_id = ? WHERE product_id = ?";
                         PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
                         preparedStatement.setInt(1, Integer.parseInt(newStatusId));
                         preparedStatement.setInt(2, Integer.parseInt(productId));

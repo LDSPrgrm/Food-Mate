@@ -1,8 +1,18 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { windowWidth } from '../utils/Dimensions';
+import { imageMapping } from '../data/ImageMapping';
 
-export default function ListItem({photo, title, description, isAvailable, price, onPress}) {
+export default function ListItem({ title, description, price, onPress, isLoading }) {
+  if (isLoading) {
+    return (
+      <View style={{ justifyContent: 'center', alignItems: 'center', marginBottom: 20 }}>
+        <ActivityIndicator size='large' />
+      </View>
+    );
+  }
+  const photo = imageMapping[title] || require('../assets/images/misc/username.png');
+
   return (
     <View style={{
       flexDirection:'row',

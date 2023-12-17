@@ -1,11 +1,12 @@
-import React, { useState, useContext,useEffect } from 'react';
-import { 
+import React, { useState, useContext, useEffect } from 'react';
+import {
   View,
   Text,
   ImageBackground,
   TextInput,
   TouchableOpacity,
-  ScrollView 
+  ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -15,15 +16,17 @@ import CustomSwitch from '../components/CustomSwitch';
 import ListItem from '../components/ListItem';
 import { windowWidth } from '../utils/Dimensions';
 import { AuthContext } from '../context/AuthContext';
-import { sliderData, getAvailableProductData, getUnavailableProductData} from '../data/products.js';
+import { sliderData, getAvailableProductData, getUnavailableProductData } from '../data/products.js';
 
-const HomeScreen = ({navigation}) => {
-  const {userInfo} = useContext(AuthContext);
+const HomeScreen = ({ navigation }) => {
+  const { userInfo } = useContext(AuthContext);
   const [productsTab, setproductsTab] = useState(1);
   const [availableViands, setAvailableViands] = useState([]);
   const [unavailableViands, setUnavailableViands] = useState([]);
+  const [isLoadingAvailable, setIsLoadingAvailable] = useState(true);
+  const [isLoadingUnavailable, setIsLoadingUnavailable] = useState(true);
 
-  const renderBanner = ({item, index}) => {
+  const renderBanner = ({ item, index }) => {
     return <BannerSlider data={item} />;
   };
 
@@ -31,27 +34,30 @@ const HomeScreen = ({navigation}) => {
     setproductsTab(value);
   };
 
+  const fetchData = async () => {
+    try {
+      const [available, unavailable] = await Promise.all([
+        getAvailableProductData(),
+        getUnavailableProductData(),
+      ]);
+
+      setAvailableViands(available);
+      setUnavailableViands(unavailable);
+    } catch (error) {
+      console.error('Error fetching product data:', error);
+    } finally {
+      setIsLoadingAvailable(false);
+      setIsLoadingUnavailable(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchAvailableProducts = async () => {
-      const availableViands = await getAvailableProductData();
-      setAvailableViands(availableViands);
-    };
-
-    fetchAvailableProducts();
-  }, []);
-
-  useEffect(() => {
-    const fetchUnavailableProducts = async () => {
-      const unavailableViands = await getUnavailableProductData();
-      setUnavailableViands(unavailableViands);
-    };
-
-    fetchUnavailableProducts();
+    fetchData();
   }, []);
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
-      <ScrollView style={{paddingHorizontal: 20, paddingTop: 0}}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+      <ScrollView style={{ paddingHorizontal: 20, paddingTop: 0 }}>
         <View
           style={{
             flexDirection: 'row',
@@ -62,15 +68,15 @@ const HomeScreen = ({navigation}) => {
           <TouchableOpacity onPress={() => navigation.openDrawer()}>
             <ImageBackground
               source={require('../assets/images/misc/username.png')}
-              style={{width: 35, height: 35}}
-              imageStyle={{borderRadius: 25}}
+              style={{ width: 35, height: 35 }}
+              imageStyle={{ borderRadius: 25 }}
             />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('Favorites')}>
             <ImageBackground
               source={require('../assets/images/misc/favorite.png')}
-              style={{width: 35, height: 35}}
-              imageStyle={{borderRadius: 25}}
+              style={{ width: 35, height: 35 }}
+              imageStyle={{ borderRadius: 25 }}
             />
           </TouchableOpacity>
         </View>
@@ -93,11 +99,11 @@ const HomeScreen = ({navigation}) => {
             flexDirection: 'row',
             justifyContent: 'space-between',
           }}>
-          <Text style={{fontSize: 17}}>
+          <Text style={{ fontSize: 17, fontWeight: 700 }}>
             Upcoming Viands
           </Text>
-          <TouchableOpacity onPress={() => {}}>
-            <Text style={{color: '#0aada8', fontSize: 17}}>See all</Text>
+          <TouchableOpacity onPress={() => { }}>
+            <Text style={{ color: '#0aada8', fontSize: 17, fontWeight: 700 }}>See all</Text>
           </TouchableOpacity>
         </View>
 
@@ -112,7 +118,7 @@ const HomeScreen = ({navigation}) => {
           loop={true}
         />
 
-        <View style={{marginVertical: 20}}>
+        <View style={{ marginVertical: 20 }}>
           <CustomSwitch
             selectionMode={1}
             option1="Popular"
@@ -122,45 +128,54 @@ const HomeScreen = ({navigation}) => {
         </View>
 
         {productsTab === 1 &&
-          availableViands.map(item => (
-            <ListItem
-              photo={require('../assets/images/misc/username.png')}
-              key={item.id}
-              title={item.name}
-              subTitle={item.description}
-              isAvailable={item.isAvailable}
-              onPress={() =>
-                navigation.navigate('FoodDetails', {
-                  id: item.id,
-                  title: item.name,
-                  description: item.description,
-                  price: item.price,
-                  stock: item.stock,
-                  status_id: item.status_id,
-                })
-              }
-            />
+          (isLoadingAvailable ? (
+            <ActivityIndicator size='large' />
+          ) : (
+            availableViands.map(item => (
+              <ListItem
+                key={item.id}
+                title={item.name}
+                subTitle={item.description}
+                isAvailable={item.isAvailable}
+                price={item.price}
+                onPress={() =>
+                  navigation.navigate('FoodDetails', {
+                    id: item.id,
+                    title: item.name,
+                    description: item.description,
+                    price: item.price,
+                    stock: item.stock,
+                    status_id: item.status_id,
+                    type_id: item.type_id,
+                  })
+                }
+              />
+            ))
           ))}
-       {productsTab === 2 &&
-          unavailableViands.map(item => (
-            <ListItem
-              photo={require('../assets/images/misc/username.png')}
-              key={item.id}
-              title={item.name}
-              subTitle={item.description}
-              isAvailable={item.isAvailable}
-              price={item.price}
-              onPress={() =>
-                navigation.navigate('FoodDetails', {
-                  id: item.id,
-                  title: item.name,
-                  description: item.description,
-                  price: item.price,
-                  stock: item.stock,
-                  status_id: item.status_id,
-                })
-              }
-            />
+        {productsTab === 2 &&
+          (isLoadingUnavailable ? (
+            <ActivityIndicator size='large' />
+          ) : (
+            unavailableViands.map(item => (
+              <ListItem
+                key={item.id}
+                title={item.name}
+                subTitle={item.description}
+                isAvailable={item.isAvailable}
+                price={item.price}
+                onPress={() =>
+                  navigation.navigate('FoodDetails', {
+                    id: item.id,
+                    title: item.name,
+                    description: item.description,
+                    price: item.price,
+                    stock: item.stock,
+                    status_id: item.status_id,
+                    type_id: item.type_id,
+                  })
+                }
+              />
+            ))
           ))}
       </ScrollView>
     </SafeAreaView>

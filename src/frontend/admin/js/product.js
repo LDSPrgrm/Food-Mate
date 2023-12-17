@@ -83,6 +83,7 @@ function saveProduct(event) {
             price: price.value,
             stock: stock.value,
             status_id: 2,
+            type_id: 2,
         })
     })
     .then(response => response.json())
@@ -193,6 +194,7 @@ function updateSaveProduct(event){
             price: price.value,
             stock: stock.value,
             status_id: 2,
+            type_id: 2,
         })
     })
     .then(response => response.json())

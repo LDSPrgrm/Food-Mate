@@ -40,7 +40,7 @@ const RegisterScreen = ({navigation}) => {
     if(password === confirmPassword) {
       try {
         axios.post(
-          'http://192.168.109.155/Projects/E-Commerce/src/backend/api/php/client/insert_user.php',
+          'http://192.168.100.142/Projects/E-Commerce/src/backend/api/php/client/insert_user.php',
           { 
             username: username,
             password: password,
@@ -70,14 +70,17 @@ const RegisterScreen = ({navigation}) => {
         showsVerticalScrollIndicator={false}
         style={{paddingHorizontal: 25}}>
         <View style={{alignItems: 'center'}}>
+          <Image
+            source={require('../assets/images/misc/logo.png')}
+            style={{ width: 300, height: 150, alignSelf: 'center' }}
+          />
         </View>
 
         <Text
           style={{
             fontSize: 30,
-            fontWeight: '500',
+            fontWeight: 700,
             color: '#0A0A0F',
-            marginVertical: 30,
             alignSelf: 'center'
           }}>
           Register
@@ -113,14 +116,14 @@ const RegisterScreen = ({navigation}) => {
 
         <CustomButton label={'Register'} onPress={(handleRegister)} />
 
-        <Text style={{textAlign: 'center', color: '#666', marginVertical: 15}}>
+        <Text style={{textAlign: 'center', color: '#666', marginVertical: 10}}>
           or
         </Text>
 
         <View
           style={{
             justifyContent: 'space-between',
-            marginBottom: 30,
+            marginBottom: 20,
           }}>
           <TouchableOpacity
             onPress={() => {}}
@@ -184,7 +187,6 @@ const RegisterScreen = ({navigation}) => {
           style={{
             flexDirection: 'row',
             justifyContent: 'center',
-            marginBottom: 30,
           }}>
           <Text style={{fontSize: 17}}>Already have an account? </Text>
           <TouchableOpacity onPress={() => navigation.goBack()}>

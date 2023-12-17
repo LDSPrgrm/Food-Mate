@@ -2,7 +2,7 @@
     require "db_connection.php";
 
     // Fetch product data from the database
-    $sql = "SELECT * FROM product";
+    $sql = "SELECT * FROM products";
     $result = $db_conn->query($sql);
 
     $productData = array();
@@ -15,7 +15,8 @@
                 'description' => $row['description'],
                 'price' => $row['price'],
                 'stock' => $row['stock'],
-                'status_id' => $row['status_id']
+                'status_id' => $row['status_id'],
+                'type_id' => $row['type_id']
             );
         }
     }

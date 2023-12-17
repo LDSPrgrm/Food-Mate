@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, {createContext, useState, useEffect} from 'react';
+import React, {createContext, useContext, useState, useEffect} from 'react';
 import { Alert } from 'react-native';
 import axios from 'axios';
 
@@ -14,7 +14,7 @@ export const AuthProvider = ({children}) => {
         setIsLoading(true);
 
         axios.post(
-            'http://192.168.109.155/Projects/E-Commerce/src/backend/api/php/client/get_users.php',
+            'http://192.168.100.142/Projects/E-Commerce/src/backend/api/php/client/get_users.php',
             { 
               username: username,
               password: password

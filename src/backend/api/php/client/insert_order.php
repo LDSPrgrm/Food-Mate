@@ -5,7 +5,7 @@ $postData = file_get_contents('php://input');
 $data = json_decode($postData, true);
 
 $user_id = $data['user_id'];
-$products = $data['products']; // Assume 'products' is an array of products, each containing 'product_id' and 'quantity'
+$products = $data['products'];
 
 mysqli_begin_transaction($db_conn);
 
@@ -15,15 +15,22 @@ try {
         $quantity = $product['quantity'];
 
         $orderInserted = insertOrder($db_conn, $user_id, $product_id, $quantity);
-
         if (!$orderInserted) {
             throw new Exception('Failed to insert order for product_id ' . $product_id);
         }
 
         $success = updateStockForProduct($db_conn, $product_id, $quantity);
-
         if (!$success) {
             throw new Exception('Insufficient stock for product_id ' . $product_id);
+        }
+    }
+
+    // Remove items from the cart after a successful order
+    foreach ($products as $product) {
+        $product_id = $product['product_id'];
+        $deleteSuccess = removeFromCart($db_conn, $user_id, $product_id);
+        if (!$deleteSuccess) {
+            throw new Exception('Failed to remove product_id ' . $product_id . ' from the cart.');
         }
     }
 
@@ -35,7 +42,6 @@ try {
     header('Content-Type: application/json');
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 } finally {
-    // Close the connections
     if (isset($stmt1)) $stmt1->close();
     if (isset($stmt2)) $stmt2->close();
     if (isset($stmt3)) $stmt3->close();
@@ -43,16 +49,25 @@ try {
 }
 
 function insertOrder($db_conn, $user_id, $product_id, $quantity) {
-    $sql = "INSERT INTO `order` (user_id, product_id, quantity) VALUES (?, ?, ?)";
+    $sql = "INSERT INTO `orders` (user_id, product_id, quantity) VALUES (?, ?, ?)";
     $stmt = $db_conn->prepare($sql);
     $stmt->bind_param("iii", $user_id, $product_id, $quantity);
     $stmt->execute();
 
-    return $stmt->affected_rows > 0; // Return true if the row was affected (success)
+    return $stmt->affected_rows > 0;
+}
+
+function removeFromCart($db_conn, $user_id, $product_id) {
+    $sql = "DELETE FROM `cart` WHERE product_id = ? AND user_id = ?";
+    $stmt = $db_conn->prepare($sql);
+    $stmt->bind_param("ii", $product_id, $user_id);
+    $stmt->execute();
+
+    return $stmt->affected_rows > 0;
 }
 
 function getStockForProduct($db_conn, $product_id) {
-    $sql = "SELECT stock FROM `product` WHERE product_id = ?";
+    $sql = "SELECT stock FROM `products` WHERE product_id = ?";
     $stmt = $db_conn->prepare($sql);
     $stmt->bind_param("i", $product_id);
     $stmt->execute();
@@ -66,7 +81,6 @@ function getStockForProduct($db_conn, $product_id) {
 }
 
 function updateStockForProduct($db_conn, $product_id, $quantity) {
-    // Fetch current stock
     $currentStock = getStockForProduct($db_conn, $product_id);
 
     if ($currentStock !== false) {
@@ -76,7 +90,7 @@ function updateStockForProduct($db_conn, $product_id, $quantity) {
 
         $newStock = $currentStock - $quantity;
 
-        $sql = "UPDATE `product` SET stock = ? WHERE product_id = ?";
+        $sql = "UPDATE `products` SET stock = ? WHERE product_id = ?";
         $stmt = $db_conn->prepare($sql);
         $stmt->bind_param("ii", $newStock, $product_id);
         $stmt->execute();

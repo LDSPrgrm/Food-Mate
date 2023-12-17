@@ -257,7 +257,7 @@ Each user has a specific role (Client or Admin), but a role can be associated wi
 Run Command: 
 PHP Server
 cd C:\xampp\htdocs\Projects\E-Commerce
-php -S localhost:9999 src\backend\api\php\AdminManagementServer.php
+php -S localhost:9999 src\backend\api\php\admin\index.php
 
 Mobile App
 C:\xampp\htdocs\Projects\E-Commerce\src\frontend\client\FoodMate

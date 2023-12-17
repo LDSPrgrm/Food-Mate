@@ -1,6 +1,5 @@
 import React, { useState, useContext } from 'react'
 import { View, Text, TouchableOpacity } from 'react-native'
-import { addOrder } from '../data/AddOrder';
 import { AuthContext } from '../context/AuthContext';
 import { addToCart } from '../data/Cart';
 
@@ -20,10 +19,10 @@ const FoodDetailsScreen = ({navigation, route}) => {
     }
   };
 
-  const addToCartAndNavigate = async () => {
+  const addToCartAndRefreshAndNavigate = async () => {
     try {
-      await addToCart(userInfo.user_id, route.params?.id, quantity, route.params?.price);
-      navigation.navigate('Cart', { cartItems: [{ product_id: route.params?.id, quantity: quantity, price: route.params?.price }] });
+      await addToCart(userInfo.user_id, route.params?.id, quantity);
+      navigation.navigate('Cart');
     } catch (error) {
       console.error('Error adding to cart:', error);
     }
@@ -101,7 +100,7 @@ const FoodDetailsScreen = ({navigation, route}) => {
         alignItems: 'center',
         justifyContent: 'center'
       }}>
-      <TouchableOpacity onPress={() => addToCart(userInfo.user_id, route.params?.id, quantity, route.params?.price)}
+      <TouchableOpacity onPress={() => addToCartAndRefreshAndNavigate()}
       style={{
           backgroundColor: '#3EB075',
           paddingVertical: 10,
@@ -126,18 +125,19 @@ const FoodDetailsScreen = ({navigation, route}) => {
 
   return (
     <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
-      <Text>{route.params?.title}</Text>
-      <Text>{route.params?.price}</Text>
+      
+        <Text>{route.params?.title}</Text>
+        <Text>{route.params?.price}</Text>
 
-      <View style={{
-        width: '100%',
-        bottom: 'auto',
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-      }}>{BottomNavBar()}
-      </View>
+        <View style={{
+          width: '100%',
+          bottom: 'auto',
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+        }}>{BottomNavBar()}
+        </View>
     </View>
   )
 }

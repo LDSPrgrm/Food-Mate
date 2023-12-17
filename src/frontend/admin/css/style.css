@@ -48,7 +48,7 @@ select {
     left: 0;
     top: 0;
     bottom: 0;
-    width: 225px; /* Default width */
+    width: 225px; /* Default */
     transition: width 0.3s ease; /* Add a smooth transition effect for width changes */
     overflow-y: auto; /* Add vertical scroll if content exceeds the viewport */
 }
@@ -279,9 +279,9 @@ li.active {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    position: absolute; /* Set absolute positioning */
-    right: 10px; /* Adjust the left position as needed */
-    top: 10px; /* Adjust the top position as needed */
+    position: absolute;
+    right: 30px;
+    top: 30px;
   }
 
 #show-form-button:hover {

@@ -9,14 +9,13 @@ $password = $data['password'];
 $firstName = $data['first_name'];
 $middleName = $data['middle_name'];
 $lastName = $data['last_name'];
-$birthdate = $data['birthdate'];
 $sex = $data['sex'];
 $civilStatus = $data['civil_status'];
 $email = $data['email'];
 
-$sql = "INSERT INTO `user` (username, password, first_name, middle_name, last_name, birthdate, sex, civil_status, email) VALUES(?,?,?,?,?,?,?,?,?)";
+$sql = "INSERT INTO `users` (username, password, first_name, middle_name, last_name, sex, civil_status, email) VALUES(?,?,?,?,?,?,?,?)";
 $stmt = $db_conn->prepare($sql);
-$stmt->bind_param("sssssssss", $username, $password, $firstName, $middleName, $lastName, $birthdate, $sex, $civilStatus, $email);
+$stmt->bind_param("ssssssss", $username, $password, $firstName, $middleName, $lastName, $sex, $civilStatus, $email);
 
 if ($stmt->execute()) {
     // User exists, fetch user data and send a success response with user information

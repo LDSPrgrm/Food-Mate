@@ -1,5 +1,6 @@
 import React from 'react'
-import { SafeAreaView, View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 const OnboardingScreen = ({navigation}) => {
@@ -17,16 +18,17 @@ const OnboardingScreen = ({navigation}) => {
             marginTop: 30,
             fontWeight: 'bold',
             fontSize: 30,
-            color: '#20315f',
+            color: '#0A0A0F',
           }}>
           Satisfy your Cravings
         </Text>
       </View>
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
       </View>
+      
       <TouchableOpacity
         style={{
-          backgroundColor: '#AD40AF',
+          backgroundColor: '#3EB075',
           padding: 20,
           width: '90%',
           borderRadius: 10,
@@ -50,3 +52,16 @@ const OnboardingScreen = ({navigation}) => {
 };
 
 export default OnboardingScreen;
+
+// Background
+// BG
+// #FAFCFE
+
+// Accent
+// #3EB075
+// #69BF70
+
+// Text
+// #0A0A0F
+
+// #F6F8FC

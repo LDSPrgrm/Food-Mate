@@ -8,7 +8,7 @@ $username = $data['username'];
 $password = $data['password'];
 
 // SQL query to check if the user exists
-$sql = "SELECT * FROM `user` WHERE `username` = ? AND `password` = ?";
+$sql = "SELECT * FROM `users` WHERE `username` = ? AND `password` = ?";
 $stmt = $db_conn->prepare($sql);
 $stmt->bind_param("ss", $username, $password);
 $stmt->execute();

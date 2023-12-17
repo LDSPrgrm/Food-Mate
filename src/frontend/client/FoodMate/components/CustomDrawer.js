@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   View,
   Text,
@@ -14,10 +14,15 @@ import {
 } from '@react-navigation/drawer';
 
 import { AuthContext } from '../context/AuthContext';
+import RechargeModal from '../modals/RechargeModal';
+import { recharge } from '../data/Cart';
 
 const CustomDrawer = props => {
   const {logout} = useContext(AuthContext);
-  
+  const {userInfo} = useContext(AuthContext);
+  const [isRechargeModalVisible, setRechargeModalVisible] = useState(false);
+  const [balance, setBalance] = useState(parseFloat(userInfo.balance));
+
   const handleLogoutPress = (logout) => {
     Alert.alert(
       'Logout',
@@ -38,16 +43,45 @@ const CustomDrawer = props => {
     );
   };
 
+  const handleRechargePress = () => {
+    setRechargeModalVisible(true);
+  };
+
+  const handleRechargeConfirm = async (amount) => {
+    try {
+      const updatedBalance = await recharge(userInfo.user_id, amount);
+      setBalance(updatedBalance.balance);
+  
+      Alert.alert(
+        'Recharge Successful',
+        `Successfully added ₱ ${amount} to your balance.`,
+        [
+          {
+            text: 'OK',
+            onPress: () => setRechargeModalVisible(false),
+          },
+        ]
+      );
+    } catch (error) {
+      console.error('Error during recharge:', error);
+    }
+  };
+  
+
+  const handleRechargeCancel = () => {
+    setRechargeModalVisible(false);
+  };
+  
   return (
     <View style={{flex: 1}}>
       <DrawerContentScrollView
         {...props}
         contentContainerStyle={{backgroundColor: '#3EB075'}}>
-        {/* <ImageBackground
-          source={require('../assets/images/menu-bg.jpeg')}
-          style={{padding: 20}}>
+        <ImageBackground
+          source={require('../assets/images/misc/banner.jpg')}
+          style={{padding: 20,}}>
           <Image
-            source={require('../assets/images/user-profile.jpg')}
+            source={require('../assets/images/misc/username.png')}
             style={{height: 80, width: 80, borderRadius: 40, marginBottom: 10}}
           />
           <Text
@@ -56,22 +90,47 @@ const CustomDrawer = props => {
               fontSize: 18,
               marginBottom: 5,
             }}>
-            John Doe
+            {userInfo.username}
           </Text>
-          <View style={{flexDirection: 'row'}}>
+          <View style={{flexDirection: 'row', 
+            alignItems: 'center', 
+            justifyContent: 'space-between'}}>
             <Text
               style={{
                 color: '#fff',
+                fontSize: 18,
                 marginRight: 5,
               }}>
-              280 Coins
+              ₱ {balance.toFixed(2)}
             </Text>
+            <TouchableOpacity onPress={handleRechargePress} style={{
+              backgroundColor: '#3EB075',
+              paddingVertical: 10,
+              paddingHorizontal: 20,
+              borderRadius: 5,
+              alignItems: 'center',
+              borderColor: 'white',
+              borderWidth: 1,
+            }}>
+              <Text style={{
+                color: '#fff',
+                fontSize: 16,
+                fontWeight: 'bold',
+              }}>Recharge</Text>
+            </TouchableOpacity>
           </View>
-        </ImageBackground> */}
+        </ImageBackground>
         <View style={{flex: 1, backgroundColor: '#fff', paddingTop: 10}}>
           <DrawerItemList {...props} />
         </View>
       </DrawerContentScrollView>
+
+      <RechargeModal
+        isVisible={isRechargeModalVisible}
+        onConfirm={handleRechargeConfirm}
+        onCancel={handleRechargeCancel}
+      />
+
       <View style={{paddingHorizontal: 20, borderTopWidth: 1, borderTopColor: '#ccc'}}>
         <TouchableOpacity onPress={() => {handleLogoutPress(logout)}} style={{paddingVertical: 10}}>
           <View style={{flexDirection: 'row', alignItems: 'center', color: 'red'}}>

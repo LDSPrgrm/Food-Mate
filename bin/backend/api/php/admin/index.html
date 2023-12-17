@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodMate Management System</title>
+    <link rel="stylesheet" type="text/css" href="?q=css-main">
+</head>
+<body>
+    <div class="nav">
+        <h1 id="company-name">FoodMate Management System</h1>
+        <ul>
+            <li id="nav-dashboard"><a onclick="loadDashboard(event)">Dashboard</a></li>
+            <li class="active" id="nav-products"><a onclick="loadProducts(event)">Viands</a></li>
+            <li id="nav-users"><a onclick="loadUsers(event)">Users</a></li>
+            <li id="nav-transactions"><a onclick="loadTransactions(event)">Transactions</a> </li>
+        </ul>
+    </div>
+
+    <button id="show-form-button">Add New Viand</button>
+
+    <div id="create-form" style="display: none;">
+    </div>
+    
+    <div class="content">    
+    </div>
+    
+    <script src="?q=js-user"></script>
+    <script src="?q=js-product"></script>
+    <script src="?q=js-main"></script>
+</body>
+</html>
