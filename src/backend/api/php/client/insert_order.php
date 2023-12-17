@@ -19,7 +19,7 @@ try {
             mysqli_rollback($db_conn);
             header('Content-Type: application/json');
             echo json_encode(['success' => false, 'error' => 'Failed to insert order for product_id ' . $product_id]);
-            exit; // Stop execution
+            exit;
         }
 
         $success = updateStockForProduct($db_conn, $product_id, $quantity);
@@ -27,7 +27,7 @@ try {
             mysqli_rollback($db_conn);
             header('Content-Type: application/json');
             echo json_encode(['success' => false, 'error' => 'Insufficient stock for product_id ' . $product_id]);
-            exit; // Stop execution
+            exit;
         }
     }
 
@@ -38,7 +38,7 @@ try {
             mysqli_rollback($db_conn);
             header('Content-Type: application/json');
             echo json_encode(['success' => false, 'error' => 'Failed to remove product_id ' . $product_id . ' from the cart.']);
-            exit; // Stop execution
+            exit;
         }
     }
 
