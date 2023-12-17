@@ -22,7 +22,7 @@ async function getSliderData() {
             stock: product.stock,
             status_id: product.status_id,
             type_id: product.type_id,
-            // image: `./assets/images/genshin-impact.jpeg`,
+            // image: require('../assets/images/products/adobo.jpg'),
         }));
     } catch (error) {
         console.error('Error in getSliderData:', error);
@@ -62,5 +62,5 @@ async function getUnavailableProductData() {
         }));
 }
 
-export const sliderData = getSliderData;
+export const sliderData = getSliderData();
 export { getAvailableProductData, getUnavailableProductData };

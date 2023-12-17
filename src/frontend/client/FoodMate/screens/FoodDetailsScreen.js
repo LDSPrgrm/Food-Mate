@@ -1,9 +1,9 @@
 import React, { useState, useContext } from 'react'
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, Alert } from 'react-native'
 import { AuthContext } from '../context/AuthContext';
 import { addToCart } from '../data/Cart';
 
-const FoodDetailsScreen = ({navigation, route}) => {
+const FoodDetailsScreen = ({route}) => {
   const [quantity, setQuantity] = useState(1);
   const {userInfo} = useContext(AuthContext);
 
@@ -22,7 +22,15 @@ const FoodDetailsScreen = ({navigation, route}) => {
   const addToCartAndRefreshAndNavigate = async () => {
     try {
       await addToCart(userInfo.user_id, route.params?.id, quantity);
-      navigation.navigate('Cart');
+      
+      Alert.alert(
+        'Success!',
+        `Successfully added ${quantity} ${quantity > 1 ? 'orders' : 'order'} for ${route.params?.title} to the cart.`,
+        [
+          { text: 'OK', onPress: () => null },
+        ],
+        { cancelable: false }
+      );
     } catch (error) {
       console.error('Error adding to cart:', error);
     }
@@ -52,7 +60,7 @@ const FoodDetailsScreen = ({navigation, route}) => {
           <View style={{
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: quantity > 1 ? '#3EB075' : 'gray',
+            backgroundColor: quantity > 1 ? '#C41E3A' : 'gray',
             borderRadius: 50,
             width: 50,
             height: 50,

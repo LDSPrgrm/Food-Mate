@@ -6,7 +6,7 @@ $data = json_decode($postData, true);
 
 $user_id = $data['user_id'];
 
-$sql = "SELECT users.username, cart.product_id, products.name, products.price, cart.quantity, cart.subtotal 
+$sql = "SELECT users.username, cart.product_id, products.name, products.price, products.stock, cart.quantity, cart.subtotal 
 FROM `cart` 
 JOIN `users` ON users.user_id = cart.user_id 
 JOIN `products` ON products.product_id = cart.product_id 

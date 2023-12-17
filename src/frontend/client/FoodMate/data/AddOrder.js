@@ -15,6 +15,7 @@ async function addOrder(user_id, product_id, quantity) {
                 headers: { 'Content-Type': 'application/json' } 
             })
             .then(response => {
+                return response.data.success;
             })
             .catch($e => {
                 console.error($e);

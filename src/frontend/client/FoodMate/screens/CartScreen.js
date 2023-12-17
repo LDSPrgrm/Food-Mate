@@ -5,6 +5,7 @@ import { getCartCount, getCartDetails, deleteFromCart } from '../data/Cart.js';
 import { AuthContext } from '../context/AuthContext';
 import PaymentModal from '../modals/PaymentModal.js';
 import TransactionSuccessModal from '../modals/TransactionSuccessModal.js';
+import InsufficientStockModal from '../modals/InsufficientStockModal.js';
 import { addOrder } from '../data/AddOrder.js';
 import { deductPayment } from '../data/AddOrder.js';
 
@@ -17,6 +18,7 @@ const CartScreen = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [isPaymentModalVisible, setPaymentModalVisible] = useState(false);
   const [isSuccessModalVisible, setSuccessModalVisible] = useState(false);
+  const [insufficientStockModalVisible, setInsufficientStockModalVisible] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
 
   const handleCheckboxToggle = (productId) => {
@@ -84,17 +86,26 @@ const CartScreen = () => {
 
   const processPayment = async (selectedItems) => {
     setPaymentModalVisible(false);
-    selectedItems.forEach(item => {
-      addOrder(userInfo.user_id, item.product_id, item.quantity);
+  
+    const orderPromises = selectedItems.map(async item => {
+      return await addOrder(userInfo.user_id, item.product_id, item.quantity);
     });
+  
+    const results = await Promise.all(orderPromises);
+    const hasInsufficientStock = results.some(success => !success);
+  
+    if (hasInsufficientStock) {
+      setInsufficientStockModalVisible(true);
+      return;
+    }
+  
     await deductPayment(userInfo.user_id, totalAmount);
     setSuccessModalVisible(true);
-  };
+  };  
 
   const deleteCartItem = async (productId) => {
     try {
       deleteFromCart(userInfo.user_id, productId);
-      console.log('Product removed from cart');
       onRefresh();
     } catch (error) {
       console.error('Error deleting product from cart:', error);
@@ -127,7 +138,7 @@ const CartScreen = () => {
           </View>
         )}
       </ScrollView>
-      <View style={{ 
+      <View style={{
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -165,6 +176,11 @@ const CartScreen = () => {
       <TransactionSuccessModal
         isVisible={isSuccessModalVisible}
         onClose={() => setSuccessModalVisible(false)}
+      />
+
+      <InsufficientStockModal
+        isVisible={insufficientStockModalVisible}
+        onClose={() => setInsufficientStockModalVisible(false)}
       />
     </View>
   );

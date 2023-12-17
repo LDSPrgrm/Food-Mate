@@ -42,12 +42,13 @@ const OnboardingScreen = ({ navigation }) => {
         }}
       >
         <Animated.Image
-          source={require('../assets/images/misc/logo_square.png')}
+          source={require('../assets/images/misc/logo.png')}
           style={{
             width: 250,
             height: 250,
             resizeMode: 'contain',
             transform: [{ scale: logoScale }],
+            marginBottom: 30,
           }}
         />
         <Animated.Text

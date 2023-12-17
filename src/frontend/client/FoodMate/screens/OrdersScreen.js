@@ -7,7 +7,7 @@ const OrdersScreen = () => {
   const [transactionCount, setTransactionCount] = useState(0);
   const [transactions, setTransactions] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const {userInfo} = useContext(AuthContext);
+  const { userInfo } = useContext(AuthContext);
 
   const onRefresh = () => {
     setIsRefreshing(true);
@@ -50,9 +50,13 @@ const OrdersScreen = () => {
       >
         {transactions.map((transaction, index) => (
           <View key={index} style={styles.transactionContainer}>
-            <Text style={styles.transactionDate}>{`Transaction Date: ${transaction.order_date}`}</Text>
+            <Text style={styles.orderDate}>{`Order Date: ${transaction.order_date}`}</Text>
             <Table borderStyle={{ borderWidth: 1, borderColor: '#ddd' }}>
-              <Row data={['Product', 'Price', 'Quantity', 'Subtotal']} style={styles.tableHeader} textStyle={styles.tableHeaderText} />
+              <Row
+                data={['Product', 'Price', 'Quantity', 'Subtotal']}
+                style={styles.tableHeader}
+                textStyle={styles.tableHeaderText}
+              />
               <Rows
                 data={transaction.orders.map(order => [
                   order.name,
@@ -60,7 +64,7 @@ const OrdersScreen = () => {
                   order.quantity,
                   `₱ ${order.subtotal}`,
                 ])}
-                textStyle={[styles.tableText]}
+                textStyle={styles.tableText}
               />
             </Table>
             <Text style={styles.totalPriceText}>{`Total Price: ₱ ${calculateTotalPrice(transaction.orders)}`}</Text>
@@ -96,10 +100,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
   },
-  transactionDate: {
+  orderDate: {
     fontSize: 17,
     fontWeight: 'bold',
     margin: 10,
+    textAlign: 'center',
   },
   tableHeader: {
     height: 40,

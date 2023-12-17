@@ -22,7 +22,7 @@ const LoginScreen = ({navigation}) => {
       <View style={{ paddingHorizontal: 25 }}>
         <Image
           source={require('../assets/images/misc/logo.png')}
-          style={{ width: 300, height: 150, alignSelf: 'center' }}
+          style={{ width: 125, height: 125, alignSelf: 'center', marginBottom: 20 }}
         />
 
         <Text
@@ -32,7 +32,7 @@ const LoginScreen = ({navigation}) => {
             color: '#0A0A0F',
             alignSelf: 'center',
           }}>
-          Login
+          Login to Food Mate
         </Text>
 
         <InputField

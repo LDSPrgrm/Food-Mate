@@ -72,7 +72,7 @@ const RegisterScreen = ({navigation}) => {
         <View style={{alignItems: 'center'}}>
           <Image
             source={require('../assets/images/misc/logo.png')}
-            style={{ width: 300, height: 150, alignSelf: 'center' }}
+            style={{ width: 125, height: 125, alignSelf: 'center', marginVertical: 15 }}
           />
         </View>
 
@@ -83,7 +83,7 @@ const RegisterScreen = ({navigation}) => {
             color: '#0A0A0F',
             alignSelf: 'center'
           }}>
-          Register
+          Register to Food Mate
         </Text>
 
         <InputField

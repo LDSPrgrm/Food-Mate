@@ -16,21 +16,29 @@ try {
 
         $orderInserted = insertOrder($db_conn, $user_id, $product_id, $quantity);
         if (!$orderInserted) {
-            throw new Exception('Failed to insert order for product_id ' . $product_id);
+            mysqli_rollback($db_conn);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'Failed to insert order for product_id ' . $product_id]);
+            exit; // Stop execution
         }
 
         $success = updateStockForProduct($db_conn, $product_id, $quantity);
         if (!$success) {
-            throw new Exception('Insufficient stock for product_id ' . $product_id);
+            mysqli_rollback($db_conn);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'Insufficient stock for product_id ' . $product_id]);
+            exit; // Stop execution
         }
     }
 
-    // Remove items from the cart after a successful order
     foreach ($products as $product) {
         $product_id = $product['product_id'];
         $deleteSuccess = removeFromCart($db_conn, $user_id, $product_id);
         if (!$deleteSuccess) {
-            throw new Exception('Failed to remove product_id ' . $product_id . ' from the cart.');
+            mysqli_rollback($db_conn);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'Failed to remove product_id ' . $product_id . ' from the cart.']);
+            exit; // Stop execution
         }
     }
 

@@ -17,6 +17,7 @@ import ListItem from '../components/ListItem';
 import { windowWidth } from '../utils/Dimensions';
 import { AuthContext } from '../context/AuthContext';
 import { sliderData, getAvailableProductData, getUnavailableProductData } from '../data/products.js';
+import { slidersData } from '../data/data.js';
 
 const HomeScreen = ({ navigation }) => {
   const { userInfo } = useContext(AuthContext);
@@ -30,7 +31,7 @@ const HomeScreen = ({ navigation }) => {
     return <BannerSlider data={item} />;
   };
 
-  const onSelectSwitch = value => {
+  const onSelectSwitch = async value => {
     setproductsTab(value);
   };
 
@@ -67,7 +68,7 @@ const HomeScreen = ({ navigation }) => {
           }}>
           <TouchableOpacity onPress={() => navigation.openDrawer()}>
             <ImageBackground
-              source={require('../assets/images/misc/username.png')}
+              source={require('../assets/images/misc/user-profile.jpg')}
               style={{ width: 35, height: 35 }}
               imageStyle={{ borderRadius: 25 }}
             />
@@ -108,10 +109,8 @@ const HomeScreen = ({ navigation }) => {
         </View>
 
         <Carousel
-          ref={c => {
-            this._carousel = c;
-          }}
-          data={sliderData}
+          ref={c => { this._carousel = c; }}
+          data={slidersData}
           renderItem={renderBanner}
           sliderWidth={windowWidth - 40}
           itemWidth={300}
@@ -138,6 +137,7 @@ const HomeScreen = ({ navigation }) => {
                 subTitle={item.description}
                 isAvailable={item.isAvailable}
                 price={item.price}
+                stock={item.stock}
                 onPress={() =>
                   navigation.navigate('FoodDetails', {
                     id: item.id,
@@ -163,6 +163,7 @@ const HomeScreen = ({ navigation }) => {
                 subTitle={item.description}
                 isAvailable={item.isAvailable}
                 price={item.price}
+                stock={item.stock}
                 onPress={() =>
                   navigation.navigate('FoodDetails', {
                     id: item.id,

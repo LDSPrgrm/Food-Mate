@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity, ActivityIndicator } from 'react-na
 import { windowWidth } from '../utils/Dimensions';
 import { imageMapping } from '../data/ImageMapping';
 
-export default function ListItem({ title, description, price, onPress, isLoading }) {
+export default function ListItem({ title, description, price, onPress, isLoading, stock }) {
   if (isLoading) {
     return (
       <View style={{ justifyContent: 'center', alignItems: 'center', marginBottom: 20 }}>
@@ -27,20 +27,20 @@ export default function ListItem({ title, description, price, onPress, isLoading
         />
         <View style={{width: windowWidth - 220}}>
           <Text
-            style={{
-              color: '#0A0A0F',
-              fontSize: 14,
-            }}>
-            {description}
-          </Text>
-          <Text
             numberOfLines={1}
             style={{
               color: '#0A0A0F',
-              fontSize: 14,
-              textTransform: 'uppercase',
+              fontSize: 17,
+              fontWeight: 700,
             }}>
             {title}
+          </Text>
+          <Text
+            style={{
+              color: '#0A0A0F',
+              fontSize: 14,
+            }}>
+            Stock: {stock}
           </Text>
         </View>
       </View>
