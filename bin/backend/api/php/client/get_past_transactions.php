@@ -4,45 +4,42 @@ require "db_connection.php";
 $postData = file_get_contents('php://input');
 $data = json_decode($postData, true);
 
-$username = '1';
+$user_id = $data['user_id'];
 
-$sql = "SELECT DISTINCT order_date FROM `orders` JOIN `users` ON users.user_id = orders.user_id WHERE username = '$username';";
-$result = mysqli_query($db_conn, $sql);
+// Get transaction count
+$countQuery = "SELECT COUNT(DISTINCT order_date) AS transaction_count FROM `orders` JOIN `users` ON users.user_id = orders.user_id WHERE users.user_id = '$user_id'";
+$countResult = $db_conn->query($countQuery);
+$countRow = $countResult->fetch_assoc();
+$transactionCount = $countRow['transaction_count'];
 
-if ($result) {
-    // Check if there are rows in the result
-    if (mysqli_num_rows($result) > 0) {
-        // Fetch all rows
-        $order_dates = [];
-        while ($row = mysqli_fetch_assoc($result)) {
-            $order_dates[] = $row['order_date'];
+// Get distinct order dates in descending order
+$dateQuery = "SELECT DISTINCT order_date FROM `orders` JOIN `users` ON users.user_id = orders.user_id WHERE users.user_id = '$user_id' ORDER BY order_date DESC";
+$dateResult = $db_conn->query($dateQuery);
 
-            // Execute the second query for each order_date
-            $order_date = $row['order_date'];
-            $secondQuery = "SELECT * FROM `orders` JOIN `users` ON users.user_id = orders.user_id WHERE username = '$username' AND order_date = '$order_date';";
-            $secondResult = mysqli_query($db_conn, $secondQuery);
+// Fetch orders for each date
+$transactions = [];
+while ($dateRow = $dateResult->fetch_assoc()) {
+    $orderDate = $dateRow['order_date'];
 
-            if ($secondResult) {
-                // Process the results of the second query as needed
-                while ($secondRow = mysqli_fetch_assoc($secondResult)) {
-                    // Do something with the data from the second query
-                }
-            } else {
-                // Handle errors for the second query
-                echo json_encode(['success' => false, 'error' => mysqli_error($db_conn)]);
-            }
-        }
+    $orderQuery = "SELECT products.name, products.price, orders.quantity, orders.subtotal, orders.order_date FROM `orders` 
+                   JOIN `users` ON users.user_id = orders.user_id 
+                   JOIN `products` ON products.product_id = orders.product_id 
+                   WHERE users.user_id = '$user_id' AND order_date = '$orderDate'";
 
-        header('Content-Type: application/json');
-        echo json_encode(['order_dates' => $order_dates]);
-    } else {
-        header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'error' => 'No data found']);
+    $orderResult = $db_conn->query($orderQuery);
+
+    $orders = [];
+    while ($orderRow = $orderResult->fetch_assoc()) {
+        $orders[] = $orderRow;
     }
-} else {
-    header('Content-Type: application/json');
-    echo json_encode(['success' => false, 'error' => mysqli_error($db_conn)]);
+
+    $transactions[] = ['order_date' => $orderDate, 'orders' => $orders];
 }
 
+// Close the database connection
 $db_conn->close();
+
+// Output JSON response
+header('Content-Type: application/json');
+echo json_encode(['transaction_count' => $transactionCount, 'transactions' => $transactions]);
 ?>

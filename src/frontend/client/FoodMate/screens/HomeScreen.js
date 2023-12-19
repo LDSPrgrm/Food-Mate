@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -26,6 +27,31 @@ const HomeScreen = ({ navigation }) => {
   const [unavailableViands, setUnavailableViands] = useState([]);
   const [isLoadingAvailable, setIsLoadingAvailable] = useState(true);
   const [isLoadingUnavailable, setIsLoadingUnavailable] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredAvailableViands, setFilteredAvailableViands] = useState([]);
+  const [filteredUnavailableViands, setFilteredUnavailableViands] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleSearch = (text) => {
+    setSearchTerm(text);
+  
+    const filterProducts = (products) =>
+      products.filter(
+        (item) =>
+          item.name.toLowerCase().includes(text.toLowerCase()) ||
+          item.description.toLowerCase().includes(text.toLowerCase())
+      );
+  
+    if (text.trim() === '') {
+      // If there is no search term, show all products
+      setFilteredAvailableViands(availableViands);
+      setFilteredUnavailableViands(unavailableViands);
+    } else {
+      // If there is a search term, filter the products
+      setFilteredAvailableViands(filterProducts(availableViands));
+      setFilteredUnavailableViands(filterProducts(unavailableViands));
+    }
+  };
 
   const renderBanner = ({ item, index }) => {
     return <BannerSlider data={item} />;
@@ -37,6 +63,9 @@ const HomeScreen = ({ navigation }) => {
 
   const fetchData = async () => {
     try {
+      // Set refreshing to true when starting to fetch data
+      setRefreshing(true);
+
       const [available, unavailable] = await Promise.all([
         getAvailableProductData(),
         getUnavailableProductData(),
@@ -49,21 +78,39 @@ const HomeScreen = ({ navigation }) => {
     } finally {
       setIsLoadingAvailable(false);
       setIsLoadingUnavailable(false);
+
+      // Set refreshing to false when data fetching is complete
+      setRefreshing(false);
     }
   };
 
   useEffect(() => {
     fetchData();
   }, []);
+  
+  useEffect(() => {
+    setFilteredAvailableViands(availableViands);
+    setFilteredUnavailableViands(unavailableViands);
+  }, [availableViands, unavailableViands]);
+  
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-      <ScrollView style={{ paddingHorizontal: 20, paddingTop: 0 }}>
+       <ScrollView
+        style={{ paddingHorizontal: 20, paddingTop: 0 }}
+        refreshControl={  // Add RefreshControl here
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={fetchData}  // Call the fetchData function on pull-to-refresh
+          />
+        }
+      >
         <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            marginVertical: 20,
+            marginTop: 20,
+            marginBottom: 10,
             alignItems: 'center',
           }}>
           <TouchableOpacity onPress={() => navigation.openDrawer()}>
@@ -90,9 +137,17 @@ const HomeScreen = ({ navigation }) => {
             borderRadius: 8,
             paddingHorizontal: 10,
             paddingVertical: 8,
-          }}>
-          <TextInput placeholder="Search" />
+            marginVertical: 15,
+          }}
+        >
+          <TextInput
+            style={{ flex: 1 }}
+            placeholder="Search"
+            value={searchTerm}
+            onChangeText={(text) => handleSearch(text)}
+          />
         </View>
+
 
         <View
           style={{
@@ -128,9 +183,9 @@ const HomeScreen = ({ navigation }) => {
 
         {productsTab === 1 &&
           (isLoadingAvailable ? (
-            <ActivityIndicator size='large' />
+            <ActivityIndicator size="large" />
           ) : (
-            availableViands.map(item => (
+            filteredAvailableViands.map((item) => (
               <ListItem
                 key={item.id}
                 title={item.name}
@@ -154,9 +209,9 @@ const HomeScreen = ({ navigation }) => {
           ))}
         {productsTab === 2 &&
           (isLoadingUnavailable ? (
-            <ActivityIndicator size='large' />
+            <ActivityIndicator size="large" />
           ) : (
-            unavailableViands.map(item => (
+            filteredUnavailableViands.map((item) => (
               <ListItem
                 key={item.id}
                 title={item.name}
@@ -178,6 +233,7 @@ const HomeScreen = ({ navigation }) => {
               />
             ))
           ))}
+
       </ScrollView>
     </SafeAreaView>
   );

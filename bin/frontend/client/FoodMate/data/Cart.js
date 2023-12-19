@@ -14,9 +14,8 @@ const addToCart = async (user_id, product_id, quantity) => {
   }
 };
 
-function updateCartDetails(user_id, product_id, quantity, subtotal) {
+async function updateCartDetails(user_id, product_id, quantity, subtotal) {
     try {
-        console.log(user_id, product_id, quantity, subtotal);
         axios.post(
             'http://192.168.100.142/Projects/E-Commerce/src/backend/api/php/client/update_cart_details.php',
             { 
@@ -29,7 +28,6 @@ function updateCartDetails(user_id, product_id, quantity, subtotal) {
                 headers: { 'Content-Type': 'application/json' } 
             })
             .then(response => {
-                console.log(response.data);
             })
             .catch($e => {
                 console.error($e);
@@ -51,7 +49,6 @@ function deleteFromCart(user_id, product_id) {
                 headers: { 'Content-Type': 'application/json' } 
             })
             .then(response => {
-                console.log(response.data);
             })
             .catch($e => {
                 console.error($e);
@@ -76,12 +73,12 @@ async function getCartCount(username) {
     }
 }
 
-async function getCartDetails(username) {
+async function getCartDetails(user_id) {
     try {
         const response = await axios.post(
             'http://192.168.100.142/Projects/E-Commerce/src/backend/api/php/client/get_user_cart_details.php',
             {
-                username: username,
+                user_id: user_id,
             }
         );
         return response.data;

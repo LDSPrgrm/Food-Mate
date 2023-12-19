@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, TouchableOpacity, RefreshControl, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { CheckBox } from 'react-native-elements';
+import { updateCartDetails } from '../data/Cart';
 import { AuthContext } from '../context/AuthContext';
 
-const CartItem = ({ product, onDelete, isCheck, onToggleCheckbox }) => {
+const CartItem = ({ product, onDelete, isCheck, onToggleCheckbox, onQuantityChange }) => {
   const [subtotal, setSubtotal] = useState(parseFloat(product.subtotal));
   const [quantity, setQuantity] = useState(Number(product.quantity));
-  const {userInfo} = useContext(AuthContext);
+  const { userInfo } = useContext(AuthContext);
 
   const toggleCheckbox = () => {
     onToggleCheckbox();
@@ -25,18 +26,24 @@ const CartItem = ({ product, onDelete, isCheck, onToggleCheckbox }) => {
     setQuantity(product.quantity);
   }, [product]);
 
-  function updateSubtotal(newQuantity) {
+  const updateSubtotal = async (newQuantity) => {
     if (!isNaN(product.price)) {
       const newSubtotal = parseFloat((newQuantity * product.price).toFixed(2));
       setSubtotal(newSubtotal);
+      await updateCartDetails(userInfo.user_id, product.product_id, newQuantity, newSubtotal);
     }
   }
 
-  const decrementQuantity = () => {
+  useEffect(() => {
+    updateSubtotal(quantity);
+  }, [quantity]);
+
+
+  const decrementQuantity = async () => {
     if (quantity > 1) {
       const newQuantity = quantity - 1;
       setQuantity(newQuantity);
-      updateSubtotal(subtotal);
+      await updateSubtotal(newQuantity);
     } else {
       Alert.alert(
         'Remove Product',
@@ -50,7 +57,6 @@ const CartItem = ({ product, onDelete, isCheck, onToggleCheckbox }) => {
             text: 'Remove',
             onPress: () => {
               onDelete(product.product_id);
-              console.log('Product removed from cart');
             },
           },
         ],
@@ -59,80 +65,67 @@ const CartItem = ({ product, onDelete, isCheck, onToggleCheckbox }) => {
     }
   };
 
-  const incrementQuantity = () => {
+  const incrementQuantity = async () => {
     if (quantity < 99) {
-      const newQuantity = quantity + 1;
+      const newQuantity = Number(quantity) + 1;
       setQuantity(newQuantity);
-      updateSubtotal(newQuantity);
     }
   };
 
-  return (
-    <View style={{ 
-      flexDirection: 'row', 
-      alignItems: 'center', 
-      justifyContent: 'space-between', 
-      padding: 10 }}
-      >
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-      <CheckBox
-        title=""
-        checked={isCheck}
-        onPress={toggleCheckbox}
-        containerStyle={{ margin: 0, padding: 0 }}
-      />
-        <View style={{ marginLeft: 10, alignItems: 'center', }}>
-          <Text>Product ID: {product.product_id}</Text>
-          <Text>Price: {product.price}</Text>
+  useEffect(() => {
+    updateSubtotal(quantity);
+  }, [quantity]);
 
-          <View style={{ flexDirection: 'row', alignItems: 'center'}}>
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ddd',
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        marginVertical: 5,
+      }}
+    >
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <CheckBox
+          title=""
+          checked={isCheck}
+          onPress={toggleCheckbox}
+          containerStyle={{ margin: 0, padding: 0 }}
+          checkedIcon="dot-circle-o"
+          uncheckedIcon="circle-o"
+          checkedColor="#3EB075"
+          uncheckedColor="#C41E3A"
+          size={50}
+        />
+        <View style={{ marginLeft: 10, alignItems: 'center', flex: 1 }}>
+          <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{product.name}</Text>
+          <View style={styles.productDetailsContainer}>
+            <View style={styles.productDetail}>
+              <Text style={{ color: '#888' }}>Price: </Text>
+              <Text style={{ color: '#333' }}>{product.price}</Text>
+            </View>
+            <View style={styles.productDetail}>
+              <Text style={{ color: '#888' }}>Stock: </Text>
+              <Text style={{ color: '#333' }}>{product.stock}</Text>
+            </View>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
             <TouchableOpacity onPress={decrementQuantity}>
-              <View
-                style={{
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: 'red',
-                  borderRadius: 50,
-                  width: 40,
-                  height: 40,
-                  marginRight: 5,
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 30,
-                    color: '#fff',
-                  }}
-                >
-                  -
-                </Text>
+              <View style={styles.quantityButton}>
+                <Text style={styles.quantityButtonText}>-</Text>
               </View>
             </TouchableOpacity>
-
-            <View style={{ width: 'auto', justifyContent: 'center', alignItems: 'center' }}>
-              <Text>Quantity: {quantity}</Text>
+            <View style={styles.quantityContainer}>
+              <Text style={{ fontSize: 16 }}>Quantity: {quantity}</Text>
             </View>
-
             <TouchableOpacity onPress={incrementQuantity} disabled={quantity === 99}>
-              <View
-                style={{
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: quantity < 99 ? '#3EB075' : 'gray',
-                  borderRadius: 50,
-                  width: 40,
-                  height: 40,
-                  marginLeft: 5,
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 30,
-                    color: '#fff',
-                  }}
-                >
-                  +
-                </Text>
+              <View style={[styles.quantityButton, { backgroundColor: quantity < 99 ? '#3EB075' : 'gray' }]}>
+                <Text style={styles.quantityButtonText}>+</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -140,6 +133,33 @@ const CartItem = ({ product, onDelete, isCheck, onToggleCheckbox }) => {
       </View>
     </View>
   );
+};
+
+const styles = {
+  productDetailsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  productDetail: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 100
+  },
+  quantityButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#C41E3A',
+    borderRadius: 50,
+    width: 50,
+    height: 50,
+    marginHorizontal: 30,
+  },
+  quantityButtonText: {
+    fontSize: 30,
+    color: '#fff',
+  },
 };
 
 export default CartItem;

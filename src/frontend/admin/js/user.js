@@ -8,6 +8,7 @@ function loadUsers(event) {
     var createUser = document.getElementById("create-form");
     const showFormButton = document.getElementById("show-form-button");
 
+    showFormButton.style.display = "block";
     showFormButton.textContent = addNewUser;
     document.querySelector("li.active").classList.remove("active");
     document.getElementById("nav-users").classList.add("active");
@@ -334,7 +335,7 @@ function refreshUsers(row, rows) {
     tdAction.appendChild(deleteButton);
 
     // Adding all td as children to tr
-    tr.appendChild(tdID);
+    // tr.appendChild(tdID);
     tr.appendChild(tdRole);
     tr.appendChild(tdUsername);
     tr.appendChild(tdFirstName);

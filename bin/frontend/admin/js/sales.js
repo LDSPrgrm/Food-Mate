@@ -1,32 +1,17 @@
-const nameRegex = /^[a-zA-Z0-9\s]+$/; // Allows letters, numbers, and spaces for the name
-const numberRegex = /^\d+$/; // Ensures the value is a positive integer
-const addNewViand = "Add New Viand";
-
-function loadProducts(event) {
+function loadSales(event) {
     event.preventDefault();
     var content = document.querySelector(".content");
-    var createProduct = document.getElementById("create-form");
     const showFormButton = document.getElementById("show-form-button");
 
-    showFormButton.style.display = "block";
-    showFormButton.textContent = addNewViand;
+    showFormButton.style.display = "none";
     document.querySelector("li.active").classList.remove("active");
-    document.getElementById("nav-products").classList.add("active");
+    document.getElementById("nav-sales").classList.add("active");
 
-    fetch("/product-create")
-    .then(response => response.text())
-    .then(html => {
-        createProduct.innerHTML = html;
-    })
-    .catch(error => {
-        console.error("Error: " + error)
-    });
-
-    fetch("/product-content")
+    fetch("/sales-content")
     .then(response => response.text())
     .then(html => {
         content.innerHTML = html;
-        getProducts();
+        getSales();
     })
     .catch(error => {
         console.error("Error: " + error)
@@ -45,7 +30,7 @@ function searchProduct(event) {
     .then(data => {
         var rows = 1;
         data.forEach(row => {
-            refreshProducts(row, rows++);
+            refreshSales(row, rows++);
         });
     })
     .catch(error => {
@@ -93,7 +78,7 @@ function saveProduct(event) {
 
         var rows = 1;
         jsonData.forEach(row => {
-            refreshProducts(row, rows++);
+            refreshSales(row, rows++);
 
             // Remove inputs from the form
             name.value = description.value = price.value = stock.value = '';
@@ -124,7 +109,7 @@ function deleteProduct(id){
             
             var rows = 1;
             jsonData.forEach(row => {
-                refreshProducts(row, rows++);
+                refreshSales(row, rows++);
             });
         })
         .catch(error => {
@@ -206,7 +191,7 @@ function updateSaveProduct(event){
         var rows = 1;
         // Refresh table
         jsonData.forEach(row => {
-            refreshProducts(row, rows++);
+            refreshSales(row, rows++);
         });
 
         // Clear form fields
@@ -272,13 +257,13 @@ function updateStatusUI(productId, newStatusId) {
     }
 }
 
-function getProducts() {
-    fetch(`/products`)
+function getSales() {
+    fetch(`/sales`)
     .then(response => response.json())
     .then(data => {
         var rows = 1;
         data.forEach(row => {
-            refreshProducts(row, rows++);
+            refreshSales(row, rows++);
         });
     })
     .catch(error => {
@@ -286,66 +271,24 @@ function getProducts() {
     });
 }
 
-function refreshProducts(row, rows) {
+function refreshSales(row, rows) {
     const table = document.querySelector("table tbody");
     // Create a new blank tr element
     const tr = document.createElement("tr");
 
-    // Create a td for my ID
-    const tdID = document.createElement("td");
-    tdID.textContent = rows;
-
-    // Create a name for first name
     const tdName = document.createElement("td");
     tdName.textContent = row.name;
 
-    const tdDescription = document.createElement("td");
-    tdDescription.textContent = row.description;
+    const tdQuantity = document.createElement("td");
+    tdQuantity.textContent = row.total_sales_quantity;
 
-    const tdPrice = document.createElement("td");
-    tdPrice.textContent = "₱ " + row.price.toFixed(2);
-
-    const tdStock = document.createElement("td");
-    tdStock.textContent = row.stock;
-
-    const tdTotalPrice = document.createElement("td");
-    tdTotalPrice.textContent = "₱ " + (row.price * row.stock).toFixed(2);
-
-    const statusButton = document.createElement('button');
-    statusButton.classList.add("status-button");
-    statusButton.id = `status-button-${row.product_id}`;
-    statusButton.textContent = (row.status_id === 1) ? 'Available' : 'Unavailable';
-    statusButton.addEventListener('click', () => toggleStatus(row.product_id));
-
-    const tdStatus = document.createElement('td');
-    tdStatus.classList.add("product-status");
-    tdStatus.appendChild(statusButton);
-
-    const tdAction = document.createElement('td');
-
-    const deleteButton = document.createElement('button');
-    deleteButton.classList.add("delete-button");
-    deleteButton.textContent = "Delete";
-    deleteButton.addEventListener('click', () => deleteProduct(row.product_id));
-
-    // Create "Update" button
-    const updateButton = document.createElement('button');
-    updateButton.classList.add("update-button");
-    updateButton.textContent = "Update";
-    updateButton.addEventListener('click', () => updateProduct(row.product_id)); // Call update function with the ID
-
-    tdAction.appendChild(updateButton);
-    tdAction.appendChild(deleteButton);
-
+    const tdTotalSales = document.createElement("td");
+    tdTotalSales.textContent = "₱ " + (row.total_sales_amount).toFixed(2);
+    
     // Adding all td as children to tr
-    // tr.appendChild(tdID);
     tr.appendChild(tdName);
-    tr.appendChild(tdDescription);
-    tr.appendChild(tdPrice);
-    tr.appendChild(tdStock);
-    tr.appendChild(tdTotalPrice);
-    tr.appendChild(tdStatus);
-    tr.appendChild(tdAction);
+    tr.appendChild(tdQuantity);
+    tr.appendChild(tdTotalSales);
 
     // Add this tr to the table
     table.appendChild(tr);

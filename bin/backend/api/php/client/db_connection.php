@@ -5,7 +5,7 @@ header("Access-Control-Allow-Methods: POST");
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-$db_conn = mysqli_connect("localhost", "root", "admin", "foodmate_db", 3301);
+$db_conn = mysqli_connect("localhost", "mobile", "client123", "foodmate_db", 3301);
 
 // Check connection
 if($db_conn === false) {

@@ -18,19 +18,21 @@ const LoginScreen = ({navigation}) => {
   const [password, setPassword] = useState(null);
 
   return (
-    <SafeAreaView style={{flex: 1, justifyContent: 'center'}}>
-      <View style={{paddingHorizontal: 25}}>
-        <View style={{alignItems: 'center'}}>
-        </View>
+    <SafeAreaView style={{ flex: 1, justifyContent: 'center' }}>
+      <View style={{ paddingHorizontal: 25 }}>
+        <Image
+          source={require('../assets/images/misc/logo.png')}
+          style={{ width: 125, height: 125, alignSelf: 'center', marginBottom: 20 }}
+        />
 
         <Text
           style={{
             fontSize: 30,
-            fontWeight: '500',
+            fontWeight: 700,
             color: '#0A0A0F',
             alignSelf: 'center',
           }}>
-          Login
+          Login to Food Mate
         </Text>
 
         <InputField
@@ -56,7 +58,7 @@ const LoginScreen = ({navigation}) => {
         
         <CustomButton label={"Login"} onPress={() => {login(username, password)}} />
 
-        <Text style={{textAlign: 'center', color: '#666', marginVertical: 15}}>
+        <Text style={{textAlign: 'center', color: '#666', marginVertical: 10}}>
           or
         </Text>
 

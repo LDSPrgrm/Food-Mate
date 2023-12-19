@@ -8,6 +8,7 @@ function loadProducts(event) {
     var createProduct = document.getElementById("create-form");
     const showFormButton = document.getElementById("show-form-button");
 
+    showFormButton.style.display = "block";
     showFormButton.textContent = addNewViand;
     document.querySelector("li.active").classList.remove("active");
     document.getElementById("nav-products").classList.add("active");
@@ -307,6 +308,9 @@ function refreshProducts(row, rows) {
     const tdStock = document.createElement("td");
     tdStock.textContent = row.stock;
 
+    const tdTotalPrice = document.createElement("td");
+    tdTotalPrice.textContent = "₱ " + (row.price * row.stock).toFixed(2);
+
     const statusButton = document.createElement('button');
     statusButton.classList.add("status-button");
     statusButton.id = `status-button-${row.product_id}`;
@@ -334,11 +338,12 @@ function refreshProducts(row, rows) {
     tdAction.appendChild(deleteButton);
 
     // Adding all td as children to tr
-    tr.appendChild(tdID);
+    // tr.appendChild(tdID);
     tr.appendChild(tdName);
     tr.appendChild(tdDescription);
     tr.appendChild(tdPrice);
     tr.appendChild(tdStock);
+    tr.appendChild(tdTotalPrice);
     tr.appendChild(tdStatus);
     tr.appendChild(tdAction);
 

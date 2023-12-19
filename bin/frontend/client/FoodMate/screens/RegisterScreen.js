@@ -56,7 +56,6 @@ const RegisterScreen = ({navigation}) => {
             headers: { 'Content-Type': 'application/json' } 
           })
           .then(response => {
-            console.log(response.data);
             (response.data.success) ? navigation.navigate('Login') : Alert.alert('Registration Failed', 'Some required inputs are missing. Please check personal details.');
           });
       } catch (error) {
@@ -71,17 +70,20 @@ const RegisterScreen = ({navigation}) => {
         showsVerticalScrollIndicator={false}
         style={{paddingHorizontal: 25}}>
         <View style={{alignItems: 'center'}}>
+          <Image
+            source={require('../assets/images/misc/logo.png')}
+            style={{ width: 125, height: 125, alignSelf: 'center', marginVertical: 15 }}
+          />
         </View>
 
         <Text
           style={{
             fontSize: 30,
-            fontWeight: '500',
+            fontWeight: 700,
             color: '#0A0A0F',
-            marginVertical: 30,
             alignSelf: 'center'
           }}>
-          Register
+          Register to Food Mate
         </Text>
 
         <InputField
@@ -114,14 +116,14 @@ const RegisterScreen = ({navigation}) => {
 
         <CustomButton label={'Register'} onPress={(handleRegister)} />
 
-        <Text style={{textAlign: 'center', color: '#666', marginVertical: 15}}>
+        <Text style={{textAlign: 'center', color: '#666', marginVertical: 10}}>
           or
         </Text>
 
         <View
           style={{
             justifyContent: 'space-between',
-            marginBottom: 30,
+            marginBottom: 20,
           }}>
           <TouchableOpacity
             onPress={() => {}}
@@ -185,7 +187,6 @@ const RegisterScreen = ({navigation}) => {
           style={{
             flexDirection: 'row',
             justifyContent: 'center',
-            marginBottom: 30,
           }}>
           <Text style={{fontSize: 17}}>Already have an account? </Text>
           <TouchableOpacity onPress={() => navigation.goBack()}>

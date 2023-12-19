@@ -21,6 +21,14 @@ const CartScreen = () => {
   const [insufficientStockModalVisible, setInsufficientStockModalVisible] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
 
+  const isCheckoutDisabled = () => {
+    return checkedItems.some(itemId => {
+      const selectedItem = cartDetails.find(item => item.product_id === itemId);
+      // console.log("Name: ", selectedItem.name, "Quantity: " + selectedItem.quantity, "Stock: " + selectedItem.stock, selectedItem.stock === 0, Number(selectedItem.quantity) > Number(selectedItem.stock));
+      return selectedItem.stock === 0 || Number(selectedItem.quantity) > Number(selectedItem.stock);
+    });
+  };
+
   const handleCheckboxToggle = (productId) => {
     if (checkedItems.includes(productId)) {
       setCheckedItems(checkedItems.filter((id) => id !== productId));
@@ -92,17 +100,19 @@ const CartScreen = () => {
     });
   
     const results = await Promise.all(orderPromises);
-    const hasInsufficientStock = results.some(success => !success);
+    const hasInsufficientStock = results.some(result => result.error && result.error.startsWith('Insufficient stock'));
   
     if (hasInsufficientStock) {
       setInsufficientStockModalVisible(true);
       return;
     }
   
+    setCheckedItems([]);
     await deductPayment(userInfo.user_id, totalAmount);
     setSuccessModalVisible(true);
-  };  
-
+  };
+  
+  
   const deleteCartItem = async (productId) => {
     try {
       deleteFromCart(userInfo.user_id, productId);
@@ -151,14 +161,14 @@ const CartScreen = () => {
         <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#333' }}>Total: ₱ {calculateSubtotal()}</Text>
         <TouchableOpacity
           style={{
-            backgroundColor: checkedItems.length === 0 ? '#ddd' : '#3EB075',
+            backgroundColor: checkedItems.length === 0 ? '#ddd' : isCheckoutDisabled() ? '#ddd' : '#3EB075',
             paddingVertical: 15,
             paddingHorizontal: 30,
             alignItems: 'center',
             borderRadius: 5,
           }}
           onPress={handleCheckout}
-          disabled={checkedItems.length === 0}
+          disabled={checkedItems.length === 0 || isCheckoutDisabled()}
         >
           <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 17 }}>Checkout</Text>
         </TouchableOpacity>

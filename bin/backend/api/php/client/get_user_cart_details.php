@@ -4,13 +4,13 @@ require "db_connection.php";
 $postData = file_get_contents('php://input');
 $data = json_decode($postData, true);
 
-$username = $data['username'];
+$user_id = $data['user_id'];
 
-$sql = "SELECT cart_id, users.username, cart.product_id, products.price, cart.quantity, cart.subtotal 
+$sql = "SELECT users.username, cart.product_id, products.name, products.price, products.stock, cart.quantity, cart.subtotal 
 FROM `cart` 
 JOIN `users` ON users.user_id = cart.user_id 
 JOIN `products` ON products.product_id = cart.product_id 
-WHERE username = '$username';";
+WHERE users.user_id = '$user_id';";
 
 $result = mysqli_query($db_conn, $sql);
 

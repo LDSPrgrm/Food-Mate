@@ -9,7 +9,6 @@ export const AuthProvider = ({children}) => {
     const [isLoading, setIsLoading] = useState(false);
     const [userInfo, setUserInfo] = useState(null);
     const [userToken, setUserToken] = useState(null);
-    const [balance, setBalance] = useState(0);
 
     const login = (username, password) => {
         setIsLoading(true);
@@ -75,23 +74,9 @@ export const AuthProvider = ({children}) => {
         isLoggedIn();
     }, []);
 
-    const updateBalance = (newBalance) => {
-        setBalance(newBalance);
-      };
-
     return (
-        <AuthContext.Provider value={{login, logout, isLoading, userToken, userInfo, balance, updateBalance}}>
+        <AuthContext.Provider value={{login, logout, isLoading, userToken, userInfo}}>
             {children}
         </AuthContext.Provider>
     );
 }
-
-export const useBalance = () => {
-    const { balance, updateBalance } = useContext(AuthContext);
-  
-    if (updateBalance === undefined) {
-      throw new Error("useBalance must be used within an AuthProvider");
-    }
-  
-    return { balance, updateBalance };
-  };

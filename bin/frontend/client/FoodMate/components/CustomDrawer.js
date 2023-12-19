@@ -13,7 +13,7 @@ import {
   DrawerItemList,
 } from '@react-navigation/drawer';
 
-import { AuthContext, useBalance } from '../context/AuthContext';
+import { AuthContext } from '../context/AuthContext';
 import RechargeModal from '../modals/RechargeModal';
 import { recharge } from '../data/Cart';
 
@@ -21,7 +21,7 @@ const CustomDrawer = props => {
   const {logout} = useContext(AuthContext);
   const {userInfo} = useContext(AuthContext);
   const [isRechargeModalVisible, setRechargeModalVisible] = useState(false);
-  const { balance, updateBalance } = useBalance();
+  const [balance, setBalance] = useState(parseFloat(userInfo.balance));
 
   const handleLogoutPress = (logout) => {
     Alert.alert(
@@ -50,7 +50,7 @@ const CustomDrawer = props => {
   const handleRechargeConfirm = async (amount) => {
     try {
       const updatedBalance = await recharge(userInfo.user_id, amount);
-      updateBalance(updatedBalance.balance);
+      setBalance(updatedBalance.balance);
   
       Alert.alert(
         'Recharge Successful',
@@ -78,10 +78,10 @@ const CustomDrawer = props => {
         {...props}
         contentContainerStyle={{backgroundColor: '#3EB075'}}>
         <ImageBackground
-          source={require('../assets/images/misc/cart_selected.png')}
-          style={{padding: 20}}>
+          source={require('../assets/images/misc/banner.jpg')}
+          style={{padding: 20,}}>
           <Image
-            source={require('../assets/images/misc/username.png')}
+            source={require('../assets/images/misc/user-profile.jpg')}
             style={{height: 80, width: 80, borderRadius: 40, marginBottom: 10}}
           />
           <Text
@@ -90,7 +90,7 @@ const CustomDrawer = props => {
               fontSize: 18,
               marginBottom: 5,
             }}>
-            {/* {userInfo.username} */}
+            {userInfo.username}
           </Text>
           <View style={{flexDirection: 'row', 
             alignItems: 'center', 
@@ -101,7 +101,7 @@ const CustomDrawer = props => {
                 fontSize: 18,
                 marginRight: 5,
               }}>
-              ₱ {balance}
+              ₱ {balance.toFixed(2)}
             </Text>
             <TouchableOpacity onPress={handleRechargePress} style={{
               backgroundColor: '#3EB075',

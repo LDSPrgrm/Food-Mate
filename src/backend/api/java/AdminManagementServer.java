@@ -48,7 +48,6 @@ public class AdminManagementServer {
                 contextCreation(exchange, "src/frontend/admin/js/script.js","text/javascript");
             });
 
-            // Customers
             server.createContext("/products", exchange -> {
                 try {
                     Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
@@ -857,6 +856,46 @@ public class AdminManagementServer {
 
             server.createContext("/js-user", exchange -> {
                 contextCreation(exchange, "src/frontend/admin/js/user.js","text/javascript");
+            });
+
+
+            server.createContext("/sales", exchange -> {
+                try {
+                    Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
+                    String sql = "SELECT name, total_sales_quantity, total_sales_amount FROM products;";
+                    PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
+                    ResultSet resultSet = preparedStatement.executeQuery();
+
+                    JSONArray jsonArray = new JSONArray();
+                    while(resultSet.next()) {
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("name", resultSet.getString("name"));
+                        jsonObject.put("total_sales_quantity", resultSet.getInt("total_sales_quantity"));
+                        jsonObject.put("total_sales_amount", resultSet.getFloat("total_sales_amount"));
+                        jsonArray.put(jsonObject);
+                    }
+
+                    String json = jsonArray.toString();
+                    exchange.getResponseHeaders().set("Content-Type", "application/json");
+                    exchange.sendResponseHeaders(200, json.length());
+
+                    OutputStream outputStream = exchange.getResponseBody();
+                    outputStream.write(json.getBytes());
+
+                    outputStream.close();
+                    preparedStatement.close();
+                    dbConnection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            });
+
+            server.createContext("/sales-content", exchange -> {
+                contextCreation(exchange, "src/frontend/admin/html/sales.html","text/html");
+            });
+
+            server.createContext("/js-sales", exchange -> {
+                contextCreation(exchange, "src\\frontend\\admin\\js\\sales.js","text/javascript");
             });
 
             server.setExecutor(null);

@@ -3,25 +3,25 @@ import axios from 'axios';
 async function addOrder(user_id, product_id, quantity) {
     const products = [
         { product_id: product_id, quantity: quantity },
-      ];
+    ];
+
     try {
-        axios.post(
+        const response = await axios.post(
             'http://192.168.100.142/Projects/E-Commerce/src/backend/api/php/client/insert_order.php',
             { 
-              user_id: user_id,
-              products: products,
+                user_id: user_id,
+                products: products,
             },
             { 
                 headers: { 'Content-Type': 'application/json' } 
-            })
-            .then(response => {
-                return response.data.success;
-            })
-            .catch($e => {
-                console.error($e);
-            })
+            }
+        );
+
+        console.log(response.data);
+        return response.data.success;
     } catch (error) {
         console.error('Error posting product data:', error);
+        return false;
     }
 }
 

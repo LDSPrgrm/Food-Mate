@@ -12,8 +12,8 @@ $countResult = $db_conn->query($countQuery);
 $countRow = $countResult->fetch_assoc();
 $transactionCount = $countRow['transaction_count'];
 
-// Get distinct order dates
-$dateQuery = "SELECT DISTINCT order_date FROM `orders` JOIN `users` ON users.user_id = orders.user_id WHERE users.user_id = '$user_id'";
+// Get distinct order dates in descending order
+$dateQuery = "SELECT DISTINCT order_date FROM `orders` JOIN `users` ON users.user_id = orders.user_id WHERE users.user_id = '$user_id' ORDER BY order_date DESC";
 $dateResult = $db_conn->query($dateQuery);
 
 // Fetch orders for each date

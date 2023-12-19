@@ -21,8 +21,10 @@ async function getSliderData() {
             price: product.price,
             stock: product.stock,
             status_id: product.status_id,
+            total_sales_quantity: total_sales_quantity,
+            total_sales_amount: total_sales_amount,
             type_id: product.type_id,
-            // image: `./assets/images/genshin-impact.jpeg`,
+            // image: require('../assets/images/products/adobo.jpg'),
         }));
     } catch (error) {
         console.error('Error in getSliderData:', error);
@@ -34,7 +36,7 @@ async function getAvailableProductData() {
     const productData = await getProductData();
 
     return productData
-        .filter(product => product.type_id == 1)
+        .filter(product => product.total_sales_quantity >= 50)
         .map(product => ({
             id: product.id,
             name: product.name,
@@ -50,7 +52,7 @@ async function getUnavailableProductData() {
     const productData = await getProductData();
 
     return productData
-        .filter(product => product.type_id == 2)
+        .filter(product => product.total_sales_quantity < 50)
         .map(product => ({
             id: product.id,
             name: product.name,
@@ -62,5 +64,5 @@ async function getUnavailableProductData() {
         }));
 }
 
-export const sliderData = getSliderData;
+export const sliderData = getSliderData();
 export { getAvailableProductData, getUnavailableProductData };

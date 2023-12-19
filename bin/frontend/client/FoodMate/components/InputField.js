@@ -22,7 +22,7 @@ export default function InputField({
   };
 
   return (
-    <View style={{ marginTop: 30 }}>
+    <View style={{ marginTop: 25 }}>
       <View
         style={{
           flexDirection: 'row',

@@ -22,14 +22,13 @@ $updateQuery = "UPDATE cart
 if ($db_conn->query($updateQuery) === TRUE) {
     mysqli_commit($db_conn);
     header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'message' => 'Item added to the cart']);
+    echo json_encode(['success' => true, 'message' => 'Successfully updated cart details']);
 } else {
     mysqli_rollback($db_conn);
     header('Content-Type: application/json');
-    echo json_encode(['success' => false, 'error' => 'Failed to add item to the cart']);
+    echo json_encode(['success' => false, 'error' => 'Failed to update item in the cart']);
 }
 
 // Close the connection
-$conn->close();
-
+$db_conn->close();
 ?>
