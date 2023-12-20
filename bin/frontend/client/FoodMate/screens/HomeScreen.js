@@ -17,7 +17,7 @@ import CustomSwitch from '../components/CustomSwitch';
 import ListItem from '../components/ListItem';
 import { windowWidth } from '../utils/Dimensions';
 import { AuthContext } from '../context/AuthContext';
-import { sliderData, getAvailableProductData, getUnavailableProductData } from '../data/products.js';
+import { sliderData, getAvailableProductData, getUnavailableProductData } from '../data/Products.js';
 import { slidersData } from '../data/data.js';
 
 const HomeScreen = ({ navigation }) => {
@@ -201,7 +201,6 @@ const HomeScreen = ({ navigation }) => {
                     price: item.price,
                     stock: item.stock,
                     status_id: item.status_id,
-                    type_id: item.type_id,
                   })
                 }
               />
@@ -227,7 +226,6 @@ const HomeScreen = ({ navigation }) => {
                     price: item.price,
                     stock: item.stock,
                     status_id: item.status_id,
-                    type_id: item.type_id,
                   })
                 }
               />

@@ -1,5 +1,5 @@
 // Load data after the page is loaded
-window.addEventListener("DOMContentLoaded", loadProducts);
+window.addEventListener("DOMContentLoaded", loadDashboard);
 
 const showFormButton = document.getElementById("show-form-button");
 const createFormDiv = document.getElementById("create-form");

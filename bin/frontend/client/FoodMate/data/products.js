@@ -23,7 +23,6 @@ async function getSliderData() {
             status_id: product.status_id,
             total_sales_quantity: total_sales_quantity,
             total_sales_amount: total_sales_amount,
-            type_id: product.type_id,
             // image: require('../assets/images/products/adobo.jpg'),
         }));
     } catch (error) {
@@ -36,7 +35,7 @@ async function getAvailableProductData() {
     const productData = await getProductData();
 
     return productData
-        .filter(product => product.total_sales_quantity >= 50)
+        .filter(product => product.total_sales_quantity >= 50 && product.status_id == 1)
         .map(product => ({
             id: product.id,
             name: product.name,
@@ -44,7 +43,6 @@ async function getAvailableProductData() {
             price: `₱ ${product.price}`,
             stock: product.stock,
             status_id: product.status_id,
-            type_id: product.type_id,
         }));
 }
 
@@ -52,7 +50,7 @@ async function getUnavailableProductData() {
     const productData = await getProductData();
 
     return productData
-        .filter(product => product.total_sales_quantity < 50)
+        .filter(product => product.total_sales_quantity < 50 && product.status_id == 1)
         .map(product => ({
             id: product.id,
             name: product.name,
@@ -60,7 +58,6 @@ async function getUnavailableProductData() {
             price: `₱ ${product.price}`,
             stock: product.stock,
             status_id: product.status_id,
-            type_id: product.type_id,
         }));
 }
 

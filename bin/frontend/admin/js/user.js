@@ -355,12 +355,20 @@ function cancelUserUpdate(event) {
     event.preventDefault();
 
     const id = document.getElementById("id");
-    const name = document.getElementById('pname');
-    const description = document.getElementById('description');
-    const price = document.getElementById('price');
-    const stock = document.getElementById('stock');
+    const role = document.getElementById('role');
+    const username = document.getElementById('username');
+    const password = document.getElementById('password');
+    const fname = document.getElementById('fname');
+    const mname = document.getElementById('mname');
+    const lname = document.getElementById('lname');
+    const birthdate = document.getElementById('birthdate');
+    const sex = document.getElementById('sex');
+    const civil_status = document.getElementById('civil_status');
+    const email = document.getElementById('email');
 
-    id.value = name.value = description.value = price.value = stock.value = '';
+    id.value = role.value = username.value = password.value = 
+    fname.value = mname.value = lname.value = birthdate.value = 
+    sex.value = civil_status.value = email.value = '';
     
     document.getElementById("form-title").textContent = "Add New Student";
 

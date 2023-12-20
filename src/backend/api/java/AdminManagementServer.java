@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -22,7 +23,8 @@ import org.json.*;
 public class AdminManagementServer {
     static final String URL = "jdbc:mariadb://127.0.0.1:3301/foodmate_db";
     static final String USER = "root";
-    static final String PASSWORD = "admin"; 
+    static final String PASSWORD = "admin";
+
     public static void main(String[] args) {
         try {
             int port = 9999;
@@ -30,22 +32,137 @@ public class AdminManagementServer {
 
             // Main page
             server.createContext("/", exchange -> {
-                contextCreation(exchange, "src/frontend/admin/html/index.html","text/html");
+                contextCreation(exchange, "src/frontend/admin/html/index.html", "text/html");
             });
+
+            server.createContext("/logo", exchange -> {
+                try {
+                    // Specify the path to your logo file
+                    Path logoPath = Paths.get("src\\frontend\\admin\\src\\logo.png");
+            
+                    // Read the logo file and send it as the response
+                    byte[] logoBytes = Files.readAllBytes(logoPath);
+            
+                    // Set the appropriate content type for an image (adjust if necessary)
+                    exchange.getResponseHeaders().set("Content-Type", "image/png");
+            
+                    // Send the logo image as the response body
+                    exchange.sendResponseHeaders(200, logoBytes.length);
+            
+                    OutputStream outputStream = exchange.getResponseBody();
+                    outputStream.write(logoBytes);
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    // Handle error and send an error response
+                    String response = "Error serving the logo";
+                    exchange.getResponseHeaders().set("Content-Type", "text/plain");
+                    exchange.sendResponseHeaders(500, response.length());
+            
+                    OutputStream outputStream = exchange.getResponseBody();
+                    outputStream.write(response.getBytes());
+                    outputStream.close();
+                }
+            });
+            
 
             // Main page
             server.createContext("/dashboard", exchange -> {
-                contextCreation(exchange, "src/frontend/admin/html/index.html","text/html");
+                contextCreation(exchange, "src/frontend/admin/html/dashboard.html", "text/html");
+            });
+
+            // Main page
+            server.createContext("/js-dashboard", exchange -> {
+                contextCreation(exchange, "src/frontend/admin/js/dashboard.js", "text/javascript");
+            });
+
+            server.createContext("/dashboard-stats", exchange -> {
+                try {
+                    Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
+
+                    // User Statistics
+                    String userStatsSql = "SELECT COUNT(user_id) AS totalUsers, " +
+                            "SUM(CASE WHEN role_id = 1 THEN 1 ELSE 0 END) AS adminCount, " +
+                            "SUM(CASE WHEN role_id = 2 THEN 1 ELSE 0 END) AS clientCount " +
+                            "FROM users";
+                    PreparedStatement userStatsPreparedStatement = dbConnection.prepareStatement(userStatsSql);
+                    ResultSet userStatsResultSet = userStatsPreparedStatement.executeQuery();
+
+                    JSONObject userStatsJsonObject = new JSONObject();
+                    if (userStatsResultSet.next()) {
+                        userStatsJsonObject.put("totalUsers", userStatsResultSet.getInt("totalUsers"));
+                        userStatsJsonObject.put("adminCount", userStatsResultSet.getInt("adminCount"));
+                        userStatsJsonObject.put("clientCount", userStatsResultSet.getInt("clientCount"));
+                    }
+
+                    // Product Statistics
+                    String productStatsSql = "SELECT " +
+                            "(SELECT COUNT(product_id) FROM products) AS totalProducts, " +
+                            "(SELECT COUNT(product_id) FROM products WHERE stock < 10) AS lowStockCount, " +
+                            "(SELECT p.name FROM products p " +
+                            "WHERE total_sales_amount = (SELECT MAX(total_sales_amount) FROM products)) AS topSellingProductAmount, "
+                            +
+                            "(SELECT p.name FROM products p " +
+                            "WHERE total_sales_quantity = (SELECT MAX(total_sales_quantity) FROM products)) AS topSellingProductQuantity;";
+
+                    PreparedStatement productStatsPreparedStatement = dbConnection.prepareStatement(productStatsSql);
+                    ResultSet productStatsResultSet = productStatsPreparedStatement.executeQuery();
+
+                    JSONObject productStatsJsonObject = new JSONObject();
+                    if (productStatsResultSet.next()) {
+                        productStatsJsonObject.put("totalProducts", productStatsResultSet.getInt("totalProducts"));
+                        productStatsJsonObject.put("topSellingProductAmount",
+                                productStatsResultSet.getString("topSellingProductAmount"));
+                        productStatsJsonObject.put("topSellingProductQuantity",
+                                productStatsResultSet.getString("topSellingProductQuantity"));
+                        productStatsJsonObject.put("lowStockCount", productStatsResultSet.getInt("lowStockCount"));
+                    }
+
+                    // Sales Statistics
+                    String salesStatsSql = "SELECT " +
+                            "(SELECT SUM(total_sales_amount) FROM products) AS totalSalesAmount, " +
+                            "(SELECT SUM(total_sales_quantity) FROM products) AS totalSalesQuantity;";
+
+                    PreparedStatement salesStatsPreparedStatement = dbConnection.prepareStatement(salesStatsSql);
+                    ResultSet salesStatsResultSet = salesStatsPreparedStatement.executeQuery();
+
+                    JSONObject salesStatsJsonObject = new JSONObject();
+                    if (salesStatsResultSet.next()) {
+                        salesStatsJsonObject.put("totalSalesAmount", salesStatsResultSet.getFloat("totalSalesAmount"));
+                        salesStatsJsonObject.put("totalSalesQuantity",
+                                salesStatsResultSet.getInt("totalSalesQuantity"));
+                    }
+
+                    // Combine both user and product statistics
+                    JSONObject combinedJsonObject = new JSONObject();
+                    combinedJsonObject.put("userStatistics", userStatsJsonObject);
+                    combinedJsonObject.put("productStatistics", productStatsJsonObject);
+                    combinedJsonObject.put("salesStatistics", salesStatsJsonObject);
+
+                    String json = combinedJsonObject.toString();
+                    exchange.getResponseHeaders().set("Content-Type", "application/json");
+                    exchange.sendResponseHeaders(200, json.length());
+
+                    OutputStream outputStream = exchange.getResponseBody();
+                    outputStream.write(json.getBytes());
+
+                    outputStream.close();
+                    userStatsPreparedStatement.close();
+                    productStatsPreparedStatement.close();
+                    dbConnection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             });
 
             // Main page CSS
             server.createContext("/css-main", exchange -> {
-                contextCreation(exchange, "src/frontend/admin/css/style.css","text/css");
+                contextCreation(exchange, "src/frontend/admin/css/style.css", "text/css");
             });
 
             // Main page JS
             server.createContext("/js-main", exchange -> {
-                contextCreation(exchange, "src/frontend/admin/js/script.js","text/javascript");
+                contextCreation(exchange, "src/frontend/admin/js/script.js", "text/javascript");
             });
 
             server.createContext("/products", exchange -> {
@@ -56,7 +173,7 @@ public class AdminManagementServer {
                     ResultSet resultSet = preparedStatement.executeQuery();
 
                     JSONArray jsonArray = new JSONArray();
-                    while(resultSet.next()) {
+                    while (resultSet.next()) {
                         JSONObject jsonObject = new JSONObject();
                         jsonObject.put("product_id", resultSet.getInt("product_id"));
                         jsonObject.put("name", resultSet.getString("name"));
@@ -86,10 +203,10 @@ public class AdminManagementServer {
                 String keyword = exchange.getRequestURI().getQuery().substring(2);
                 try {
                     Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
-                    String sql = "SELECT * FROM products WHERE name LIKE ?" + 
-                                    "OR description LIKE ?" +
-                                    "OR price LIKE ?" +
-                                    "OR stock LIKE ?";
+                    String sql = "SELECT * FROM products WHERE name LIKE ?" +
+                            "OR description LIKE ?" +
+                            "OR price LIKE ?" +
+                            "OR stock LIKE ?";
                     PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
 
                     preparedStatement.setString(1, "%" + keyword + "%");
@@ -98,8 +215,7 @@ public class AdminManagementServer {
                     preparedStatement.setString(4, "%" + keyword + "%");
 
                     productContextCreation(exchange, dbConnection, preparedStatement, sql);
-                }
-                catch(SQLException sqlE) {
+                } catch (SQLException sqlE) {
                     sqlE.printStackTrace();
                 }
             });
@@ -114,7 +230,7 @@ public class AdminManagementServer {
                     while ((line = br.readLine()) != null) {
                         requestBody.append(line);
                     }
-                    
+
                     try {
                         Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
 
@@ -123,18 +239,18 @@ public class AdminManagementServer {
                         String description = json.getString("description");
                         float price = json.getFloat("price");
                         int stock = json.getInt("stock");
-                        
-                        //SQL query to insert data
+
+                        // SQL query to insert data
                         String sql = "INSERT INTO products(name, description, price, stock) VALUES(?,?,?,?)";
 
-                        //Create a PreparedStatement
+                        // Create a PreparedStatement
                         PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
                         preparedStatement.setString(1, name);
                         preparedStatement.setString(2, description);
                         preparedStatement.setFloat(3, price);
                         preparedStatement.setInt(4, stock);
 
-                        //Execute the INSERT command
+                        // Execute the INSERT command
                         preparedStatement.executeUpdate();
 
                         sql = "SELECT * FROM products";
@@ -162,11 +278,11 @@ public class AdminManagementServer {
             });
 
             server.createContext("/product-delete", exchange -> {
-                if ("DELETE".equals(exchange.getRequestMethod())){
+                if ("DELETE".equals(exchange.getRequestMethod())) {
                     // Extract the item ID to be deleted from the request, for example, from the URI
                     String id = exchange.getRequestURI().getQuery().substring(3);
-                                        
-                    try{
+
+                    try {
                         Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
 
                         // SQL query to delete data
@@ -176,7 +292,7 @@ public class AdminManagementServer {
 
                         sql = "SELECT * FROM products";
                         selectAllProducts(dbConnection, exchange, sql);
-                    } catch(SQLException e) {
+                    } catch (SQLException e) {
                         e.printStackTrace();
                     }
 
@@ -185,27 +301,26 @@ public class AdminManagementServer {
                     String response = "Invalid HTTP method. Only DELETE requests are accepted.";
                     exchange.sendResponseHeaders(405, response.length());
                     exchange.getResponseBody().write(response.getBytes());
-                }	
+                }
             });
 
-            
             server.createContext("/product-update", exchange -> {
                 // Extract the item ID to be deleted from the request, for example, from the URI
                 String id = exchange.getRequestURI().getQuery().substring(3);
-            
+
                 try {
                     Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
-                    
-                    //SQL query to fetch single row
+
+                    // SQL query to fetch single row
                     String sql = "SELECT * FROM products WHERE product_id = ?";
-                    //Create a PreparedStatement
+                    // Create a PreparedStatement
                     PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
                     preparedStatement.setInt(1, Integer.parseInt(id));
-            
-                    //Execute query
+
+                    // Execute query
                     ResultSet resultSet = preparedStatement.executeQuery();
                     JSONObject jsonObject = new JSONObject();
-                    while(resultSet.next()){
+                    while (resultSet.next()) {
                         jsonObject.put("product_id", resultSet.getInt("product_id"));
                         jsonObject.put("name", resultSet.getString("name"));
                         jsonObject.put("description", resultSet.getString("description"));
@@ -213,13 +328,13 @@ public class AdminManagementServer {
                         jsonObject.put("stock", resultSet.getInt("stock"));
                         jsonObject.put("status_id", resultSet.getInt("status_id"));
                     }
-                    //Convert JSON array object to String
+                    // Convert JSON array object to String
                     String jsonString = jsonObject.toString();
-                    //Close prepared statement
-                    preparedStatement.close();   
-                    //Close database connection
+                    // Close prepared statement
+                    preparedStatement.close();
+                    // Close database connection
                     dbConnection.close();
-                    
+
                     // Send a response
                     exchange.getResponseHeaders().set("Content-Type", "application/json");
                     exchange.sendResponseHeaders(200, jsonString.length());
@@ -227,17 +342,17 @@ public class AdminManagementServer {
                     OutputStream os = exchange.getResponseBody();
                     os.write(jsonString.getBytes());
                     os.close();
-                }catch(SQLException e){
-                      throw new RuntimeException("An error occurred", e);
+                } catch (SQLException e) {
+                    throw new RuntimeException("An error occurred", e);
                 }
-            });  
+            });
 
             server.createContext("/product-update-save", exchange -> {
                 if ("PUT".equals(exchange.getRequestMethod())) {
                     InputStreamReader isr = new InputStreamReader(exchange.getRequestBody(), "utf-8");
                     BufferedReader br = new BufferedReader(isr);
                     StringBuilder requestBody = new StringBuilder();
-                    
+
                     String line;
                     while ((line = br.readLine()) != null) {
                         requestBody.append(line);
@@ -254,23 +369,23 @@ public class AdminManagementServer {
 
                         Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
 
-                        //SQL query to update data
+                        // SQL query to update data
                         String sql = "UPDATE products SET name = ?, description = ?, price = ?, stock = ? WHERE product_id = ?";
-                        
-                        //Create a PreparedStatement
+
+                        // Create a PreparedStatement
                         PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
                         preparedStatement.setString(1, name);
                         preparedStatement.setString(2, description);
                         preparedStatement.setFloat(3, price);
                         preparedStatement.setString(4, stock);
                         preparedStatement.setInt(5, id);
-                        
-                        //Execute the UPDATE command
+
+                        // Execute the UPDATE command
                         preparedStatement.executeUpdate();
 
                         sql = "SELECT * FROM products";
                         selectAllProducts(dbConnection, exchange, sql);
-                        
+
                     } catch (Exception e) {
                         e.printStackTrace();
                         // Handle errors and send an error response
@@ -282,7 +397,7 @@ public class AdminManagementServer {
                         os.write(response.getBytes());
                         os.close();
                     }
-            
+
                 } else {
                     // Handle invalid HTTP method (e.g., not POST)
                     String response = "Method not allowed.";
@@ -292,10 +407,11 @@ public class AdminManagementServer {
                     OutputStream os = exchange.getResponseBody();
                     os.write(response.getBytes());
                     os.close();
-                }   
+                }
             });
 
-            // Add this block within your existing server.createContext("/product-status", ...) block
+            // Add this block within your existing server.createContext("/product-status",
+            // ...) block
             server.createContext("/product-status", exchange -> {
                 try {
                     // Extract the product ID from the request, for example, from the URI
@@ -345,19 +461,20 @@ public class AdminManagementServer {
                     try {
                         int queryLength = exchange.getRequestURI().getQuery().length();
 
-                        // Extract the product ID and new status from the request, for example, from the URI
+                        // Extract the product ID and new status from the request, for example, from the
+                        // URI
                         String productId = "";
                         String newStatusId = "";
-                        if(queryLength == 13) {
+                        if (queryLength == 13) {
                             productId = exchange.getRequestURI().getQuery().substring(3, 4);
                             newStatusId = exchange.getRequestURI().getQuery().substring(12);
-                        } else if(queryLength == 14) {
+                        } else if (queryLength == 14) {
                             productId = exchange.getRequestURI().getQuery().substring(3, 5);
                             newStatusId = exchange.getRequestURI().getQuery().substring(13);
-                        } else if(queryLength == 15) {
+                        } else if (queryLength == 15) {
                             productId = exchange.getRequestURI().getQuery().substring(3, 6);
                             newStatusId = exchange.getRequestURI().getQuery().substring(14);
-                        } 
+                        }
 
                         // Update the status of the product in the database
                         Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
@@ -365,27 +482,27 @@ public class AdminManagementServer {
                         PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
                         preparedStatement.setInt(1, Integer.parseInt(newStatusId));
                         preparedStatement.setInt(2, Integer.parseInt(productId));
-            
+
                         // Execute the update
                         int rowsUpdated = preparedStatement.executeUpdate();
-            
+
                         // Check if the update was successful
                         if (rowsUpdated > 0) {
                             // Return the updated product information, if needed
                             // You can fetch the updated product details and send them in the response
                             // Alternatively, you can just send a success status without additional data
-            
+
                             // For demonstration purposes, we'll return a success message
                             JSONObject jsonResponse = new JSONObject();
                             jsonResponse.put("message", "Status updated successfully");
-            
+
                             // Convert JSON response to String
                             String jsonString = jsonResponse.toString();
-            
+
                             // Send the response to the client
                             exchange.getResponseHeaders().set("Content-Type", "application/json");
                             exchange.sendResponseHeaders(200, jsonString.length());
-            
+
                             OutputStream os = exchange.getResponseBody();
                             os.write(jsonString.getBytes());
                             os.close();
@@ -394,7 +511,7 @@ public class AdminManagementServer {
                             exchange.sendResponseHeaders(404, 0); // 404 Not Found
                             exchange.getResponseBody().close();
                         }
-            
+
                         // Close resources
                         preparedStatement.close();
                         dbConnection.close();
@@ -410,22 +527,18 @@ public class AdminManagementServer {
                     exchange.getResponseBody().close();
                 }
             });
-            
 
             server.createContext("/product-content", exchange -> {
-                contextCreation(exchange, "src/frontend/admin/html/products.html","text/html");
+                contextCreation(exchange, "src/frontend/admin/html/products.html", "text/html");
             });
 
             server.createContext("/product-create", exchange -> {
-                contextCreation(exchange, "src/frontend/admin/html/product_create.html","text/html");
+                contextCreation(exchange, "src/frontend/admin/html/product_create.html", "text/html");
             });
 
             server.createContext("/js-product", exchange -> {
-                contextCreation(exchange, "src\\frontend\\admin\\js\\product.js","text/javascript");
+                contextCreation(exchange, "src\\frontend\\admin\\js\\product.js", "text/javascript");
             });
-
-
-
 
             // Users
             server.createContext("/users", exchange -> {
@@ -436,7 +549,7 @@ public class AdminManagementServer {
                     ResultSet resultSet = preparedStatement.executeQuery();
 
                     JSONArray jsonArray = new JSONArray();
-                    while(resultSet.next()) {
+                    while (resultSet.next()) {
                         JSONObject jsonObject = new JSONObject();
                         jsonObject.put("user_id", resultSet.getInt("user_id"));
                         jsonObject.put("role_id", resultSet.getInt("role_id"));
@@ -471,17 +584,18 @@ public class AdminManagementServer {
                 String keyword = exchange.getRequestURI().getQuery().substring(2);
                 try {
                     Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
-                    String sql = "SELECT * FROM users a INNER JOIN `roles` b ON a.role_id = b.role_id WHERE role_name LIKE ?" +
-                                    "OR username LIKE ?" + 
-                                    "OR password LIKE ?" +
-                                    "OR first_name LIKE ?" +
-                                    "OR middle_name LIKE ?" +
-                                    "OR middle_name LIKE ?" +
-                                    "OR last_name LIKE ?" +
-                                    "OR birthdate LIKE ?" +
-                                    "OR sex LIKE ?" +
-                                    "OR civil_status LIKE ?" +
-                                    "OR email LIKE ?";
+                    String sql = "SELECT * FROM users a INNER JOIN `roles` b ON a.role_id = b.role_id WHERE role_name LIKE ?"
+                            +
+                            "OR username LIKE ?" +
+                            "OR password LIKE ?" +
+                            "OR first_name LIKE ?" +
+                            "OR middle_name LIKE ?" +
+                            "OR middle_name LIKE ?" +
+                            "OR last_name LIKE ?" +
+                            "OR birthdate LIKE ?" +
+                            "OR sex LIKE ?" +
+                            "OR civil_status LIKE ?" +
+                            "OR email LIKE ?";
                     PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
 
                     preparedStatement.setString(1, "%" + keyword + "%");
@@ -497,8 +611,7 @@ public class AdminManagementServer {
                     preparedStatement.setString(11, "%" + keyword + "%");
 
                     userContextCreation(exchange, dbConnection, preparedStatement, sql);
-                }
-                catch(SQLException sqlE) {
+                } catch (SQLException sqlE) {
                     sqlE.printStackTrace();
                 }
             });
@@ -513,7 +626,7 @@ public class AdminManagementServer {
                     while ((line = br.readLine()) != null) {
                         requestBody.append(line);
                     }
-                    
+
                     try {
                         Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
 
@@ -529,13 +642,13 @@ public class AdminManagementServer {
                         String civilStatus = json.getString("civil_status");
                         String email = json.getString("email");
 
-                        //SQL query to insert data
-                        String sql = "INSERT INTO users(role_id, username, password, " + 
-                                        "first_name, middle_name, last_name, " +
-                                        "birthdate, sex, civil_status, email) " +
-                                        "VALUES(?,?,?,?,?,?,?,?,?,?)";
+                        // SQL query to insert data
+                        String sql = "INSERT INTO users(role_id, username, password, " +
+                                "first_name, middle_name, last_name, " +
+                                "birthdate, sex, civil_status, email) " +
+                                "VALUES(?,?,?,?,?,?,?,?,?,?)";
 
-                        //Create a PreparedStatement
+                        // Create a PreparedStatement
                         PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
                         preparedStatement.setInt(1, role_id);
                         preparedStatement.setString(2, username);
@@ -548,7 +661,7 @@ public class AdminManagementServer {
                         preparedStatement.setString(9, civilStatus);
                         preparedStatement.setString(10, email);
 
-                        //Execute the INSERT command
+                        // Execute the INSERT command
                         preparedStatement.executeUpdate();
 
                         sql = "SELECT * FROM users";
@@ -576,11 +689,11 @@ public class AdminManagementServer {
             });
 
             server.createContext("/user-delete", exchange -> {
-                if ("DELETE".equals(exchange.getRequestMethod())){
+                if ("DELETE".equals(exchange.getRequestMethod())) {
                     // Extract the item ID to be deleted from the request, for example, from the URI
                     String id = exchange.getRequestURI().getQuery().substring(3);
-                                        
-                    try{
+
+                    try {
                         Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
 
                         // SQL query to delete data
@@ -590,7 +703,7 @@ public class AdminManagementServer {
 
                         sql = "SELECT * FROM users";
                         selectAllProducts(dbConnection, exchange, sql);
-                    } catch(SQLException e) {
+                    } catch (SQLException e) {
                         e.printStackTrace();
                     }
 
@@ -599,27 +712,26 @@ public class AdminManagementServer {
                     String response = "Invalid HTTP method. Only DELETE requests are accepted.";
                     exchange.sendResponseHeaders(405, response.length());
                     exchange.getResponseBody().write(response.getBytes());
-                }	
+                }
             });
 
-            
             server.createContext("/user-update", exchange -> {
                 // Extract the item ID to be deleted from the request, for example, from the URI
                 String id = exchange.getRequestURI().getQuery().substring(3);
-            
+
                 try {
                     Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
-                    
-                    //SQL query to fetch single row
+
+                    // SQL query to fetch single row
                     String sql = "SELECT * FROM users WHERE user_id = ?";
-                    //Create a PreparedStatement
+                    // Create a PreparedStatement
                     PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
                     preparedStatement.setInt(1, Integer.parseInt(id));
-            
-                    //Execute query
+
+                    // Execute query
                     ResultSet resultSet = preparedStatement.executeQuery();
                     JSONObject jsonObject = new JSONObject();
-                    while(resultSet.next()){
+                    while (resultSet.next()) {
                         jsonObject.put("user_id", resultSet.getInt("user_id"));
                         jsonObject.put("role_id", resultSet.getInt("role_id"));
                         jsonObject.put("username", resultSet.getString("username"));
@@ -633,13 +745,13 @@ public class AdminManagementServer {
                         jsonObject.put("email", resultSet.getString("email"));
 
                     }
-                    //Convert JSON array object to String
+                    // Convert JSON array object to String
                     String jsonString = jsonObject.toString();
-                    //Close prepared statement
-                    preparedStatement.close();   
-                    //Close database connection
+                    // Close prepared statement
+                    preparedStatement.close();
+                    // Close database connection
                     dbConnection.close();
-                    
+
                     // Send a response
                     exchange.getResponseHeaders().set("Content-Type", "application/json");
                     exchange.sendResponseHeaders(200, jsonString.length());
@@ -647,17 +759,17 @@ public class AdminManagementServer {
                     OutputStream os = exchange.getResponseBody();
                     os.write(jsonString.getBytes());
                     os.close();
-                }catch(SQLException e){
-                      throw new RuntimeException("An error occurred", e);
+                } catch (SQLException e) {
+                    throw new RuntimeException("An error occurred", e);
                 }
-            });  
+            });
 
             server.createContext("/user-update-save", exchange -> {
                 if ("PUT".equals(exchange.getRequestMethod())) {
                     InputStreamReader isr = new InputStreamReader(exchange.getRequestBody(), "utf-8");
                     BufferedReader br = new BufferedReader(isr);
                     StringBuilder requestBody = new StringBuilder();
-                    
+
                     String line;
                     while ((line = br.readLine()) != null) {
                         requestBody.append(line);
@@ -680,12 +792,12 @@ public class AdminManagementServer {
 
                         Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
 
-                        //SQL query to update data
+                        // SQL query to update data
                         String sql = "UPDATE users SET role_id = ?, username = ?, password = ?, " +
-                                        "first_name = ?, middle_name = ?, last_name = ?, " +
-                                        "birthdate = ?, sex = ?, civil_status = ?, email = ? WHERE user_id = ?";
-                        
-                        //Create a PreparedStatement
+                                "first_name = ?, middle_name = ?, last_name = ?, " +
+                                "birthdate = ?, sex = ?, civil_status = ?, email = ? WHERE user_id = ?";
+
+                        // Create a PreparedStatement
                         PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
                         preparedStatement.setInt(1, role_id);
                         preparedStatement.setString(2, username);
@@ -698,13 +810,13 @@ public class AdminManagementServer {
                         preparedStatement.setString(9, civilStatus);
                         preparedStatement.setString(10, email);
                         preparedStatement.setInt(11, id);
-                        
-                        //Execute the UPDATE command
+
+                        // Execute the UPDATE command
                         preparedStatement.executeUpdate();
 
                         sql = "SELECT * FROM users";
                         selectAllUsers(dbConnection, exchange, sql);
-                        
+
                     } catch (Exception e) {
                         e.printStackTrace();
                         // Handle errors and send an error response
@@ -716,7 +828,7 @@ public class AdminManagementServer {
                         os.write(response.getBytes());
                         os.close();
                     }
-            
+
                 } else {
                     // Handle invalid HTTP method (e.g., not POST)
                     String response = "Method not allowed.";
@@ -726,10 +838,11 @@ public class AdminManagementServer {
                     OutputStream os = exchange.getResponseBody();
                     os.write(response.getBytes());
                     os.close();
-                }   
+                }
             });
 
-            // Add this block within your existing server.createContext("/product-status", ...) block
+            // Add this block within your existing server.createContext("/product-status",
+            // ...) block
             server.createContext("/product-status", exchange -> {
                 try {
                     // Extract the product ID from the request, for example, from the URI
@@ -780,19 +893,20 @@ public class AdminManagementServer {
                         String query = exchange.getRequestURI().getQuery();
                         int queryLength = query.length();
 
-                        // Extract the product ID and new status from the request, for example, from the URI
+                        // Extract the product ID and new status from the request, for example, from the
+                        // URI
                         String productId = "";
                         String newStatusId = "";
-                        if(queryLength == 13) {
+                        if (queryLength == 13) {
                             productId = query.substring(3, 4);
                             newStatusId = query.substring(12);
-                        } else if(queryLength == 14) {
+                        } else if (queryLength == 14) {
                             productId = query.substring(3, 5);
                             newStatusId = query.substring(13);
-                        } else if(queryLength == 15) {
+                        } else if (queryLength == 15) {
                             productId = query.substring(3, 6);
                             newStatusId = query.substring(14);
-                        } 
+                        }
 
                         // Update the status of the product in the database
                         Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
@@ -800,27 +914,27 @@ public class AdminManagementServer {
                         PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
                         preparedStatement.setInt(1, Integer.parseInt(newStatusId));
                         preparedStatement.setInt(2, Integer.parseInt(productId));
-            
+
                         // Execute the update
                         int rowsUpdated = preparedStatement.executeUpdate();
-            
+
                         // Check if the update was successful
                         if (rowsUpdated > 0) {
                             // Return the updated product information, if needed
                             // You can fetch the updated product details and send them in the response
                             // Alternatively, you can just send a success status without additional data
-            
+
                             // For demonstration purposes, we'll return a success message
                             JSONObject jsonResponse = new JSONObject();
                             jsonResponse.put("message", "Status updated successfully");
-            
+
                             // Convert JSON response to String
                             String jsonString = jsonResponse.toString();
-            
+
                             // Send the response to the client
                             exchange.getResponseHeaders().set("Content-Type", "application/json");
                             exchange.sendResponseHeaders(200, jsonString.length());
-            
+
                             OutputStream os = exchange.getResponseBody();
                             os.write(jsonString.getBytes());
                             os.close();
@@ -829,7 +943,7 @@ public class AdminManagementServer {
                             exchange.sendResponseHeaders(404, 0); // 404 Not Found
                             exchange.getResponseBody().close();
                         }
-            
+
                         // Close resources
                         preparedStatement.close();
                         dbConnection.close();
@@ -845,19 +959,18 @@ public class AdminManagementServer {
                     exchange.getResponseBody().close();
                 }
             });
-            
+
             server.createContext("/user-content", exchange -> {
-                contextCreation(exchange, "src/frontend/admin/html/users.html","text/html");
+                contextCreation(exchange, "src/frontend/admin/html/users.html", "text/html");
             });
 
             server.createContext("/user-create", exchange -> {
-                contextCreation(exchange, "src/frontend/admin/html/user_create.html","text/html");
+                contextCreation(exchange, "src/frontend/admin/html/user_create.html", "text/html");
             });
 
             server.createContext("/js-user", exchange -> {
-                contextCreation(exchange, "src/frontend/admin/js/user.js","text/javascript");
+                contextCreation(exchange, "src/frontend/admin/js/user.js", "text/javascript");
             });
-
 
             server.createContext("/sales", exchange -> {
                 try {
@@ -867,7 +980,7 @@ public class AdminManagementServer {
                     ResultSet resultSet = preparedStatement.executeQuery();
 
                     JSONArray jsonArray = new JSONArray();
-                    while(resultSet.next()) {
+                    while (resultSet.next()) {
                         JSONObject jsonObject = new JSONObject();
                         jsonObject.put("name", resultSet.getString("name"));
                         jsonObject.put("total_sales_quantity", resultSet.getInt("total_sales_quantity"));
@@ -891,18 +1004,17 @@ public class AdminManagementServer {
             });
 
             server.createContext("/sales-content", exchange -> {
-                contextCreation(exchange, "src/frontend/admin/html/sales.html","text/html");
+                contextCreation(exchange, "src/frontend/admin/html/sales.html", "text/html");
             });
 
             server.createContext("/js-sales", exchange -> {
-                contextCreation(exchange, "src\\frontend\\admin\\js\\sales.js","text/javascript");
+                contextCreation(exchange, "src\\frontend\\admin\\js\\sales.js", "text/javascript");
             });
 
             server.setExecutor(null);
             server.start();
             System.out.println("Server is running at http://localhost:" + port);
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -910,7 +1022,7 @@ public class AdminManagementServer {
     private static void contextCreation(HttpExchange exchange, String path, String headerValue) {
         try {
             byte[] content = Files.readAllBytes(Paths.get(path));
-            
+
             exchange.getResponseHeaders().set("Content-Type", headerValue);
             exchange.sendResponseHeaders(200, content.length);
 
@@ -922,11 +1034,12 @@ public class AdminManagementServer {
         }
     }
 
-    private static void productContextCreation(HttpExchange exchange, Connection dbConnection, PreparedStatement preparedStatement, String sql) {
+    private static void productContextCreation(HttpExchange exchange, Connection dbConnection,
+            PreparedStatement preparedStatement, String sql) {
         try {
             JSONArray jsonArray = new JSONArray();
             ResultSet resultSet = preparedStatement.executeQuery();
-            while(resultSet.next()) {
+            while (resultSet.next()) {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("product_id", resultSet.getInt("product_id"));
                 jsonObject.put("name", resultSet.getString("name"));
@@ -954,15 +1067,15 @@ public class AdminManagementServer {
 
     private static void selectAllProducts(Connection dbConnection, HttpExchange exchange, String sql) {
         try {
-            //Prepare statement
+            // Prepare statement
             PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
 
-            //Execute query
+            // Execute query
             ResultSet resultSet = preparedStatement.executeQuery();
 
             // Iterate the result set
             JSONArray jsonArr = new JSONArray();
-            while(resultSet.next()){
+            while (resultSet.next()) {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("product_id", resultSet.getInt("product_id"));
                 jsonObject.put("name", resultSet.getString("name"));
@@ -973,29 +1086,30 @@ public class AdminManagementServer {
                 jsonArr.put(jsonObject);
             }
             String json = jsonArr.toString();
-            
+
             exchange.getResponseHeaders().set("Content-Type", "application/json");
             exchange.sendResponseHeaders(200, json.length());
 
             OutputStream os = exchange.getResponseBody();
             os.write(json.getBytes());
             os.close();
-            
-            //Close prepared statement
-            preparedStatement.close();          
 
-            //Close database connection
+            // Close prepared statement
+            preparedStatement.close();
+
+            // Close database connection
             dbConnection.close();
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private static void userContextCreation(HttpExchange exchange, Connection dbConnection, PreparedStatement preparedStatement, String sql) {
+    private static void userContextCreation(HttpExchange exchange, Connection dbConnection,
+            PreparedStatement preparedStatement, String sql) {
         try {
             JSONArray jsonArray = new JSONArray();
             ResultSet resultSet = preparedStatement.executeQuery();
-            while(resultSet.next()) {
+            while (resultSet.next()) {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("user_id", resultSet.getInt("user_id"));
                 jsonObject.put("role_id", resultSet.getInt("role_id"));
@@ -1028,15 +1142,15 @@ public class AdminManagementServer {
 
     private static void selectAllUsers(Connection dbConnection, HttpExchange exchange, String sql) {
         try {
-            //Prepare statement
+            // Prepare statement
             PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
 
-            //Execute query
+            // Execute query
             ResultSet resultSet = preparedStatement.executeQuery();
 
             // Iterate the result set
             JSONArray jsonArray = new JSONArray();
-            while(resultSet.next()){
+            while (resultSet.next()) {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("user_id", resultSet.getInt("user_id"));
                 jsonObject.put("role_id", resultSet.getInt("role_id"));
@@ -1052,27 +1166,27 @@ public class AdminManagementServer {
                 jsonArray.put(jsonObject);
             }
             String json = jsonArray.toString();
-            
+
             exchange.getResponseHeaders().set("Content-Type", "application/json");
             exchange.sendResponseHeaders(200, json.length());
 
             OutputStream os = exchange.getResponseBody();
             os.write(json.getBytes());
             os.close();
-            
-            //Close prepared statement
-            preparedStatement.close();          
 
-            //Close database connection
+            // Close prepared statement
+            preparedStatement.close();
+
+            // Close database connection
             dbConnection.close();
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     private static void resetAutoIncrement(Connection dbConnection, String sql, String tableName, String id) {
         try {
-        String resetAutoIncrementSql = "ALTER TABLE " + tableName + " AUTO_INCREMENT = 0";
+            String resetAutoIncrementSql = "ALTER TABLE " + tableName + " AUTO_INCREMENT = 0";
             // Create a PreparedStatement for the delete operation
             PreparedStatement deletePreparedStatement = dbConnection.prepareStatement(sql);
             deletePreparedStatement.setInt(1, Integer.parseInt(id));

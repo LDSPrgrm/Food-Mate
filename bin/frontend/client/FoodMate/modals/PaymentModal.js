@@ -2,11 +2,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 
-const PaymentModal = ({ userInfo, isVisible, onSuccess, onClose, totalAmount, balance, onBalanceUpdate }) => {
-  const handlePayment = async () =>  {
-    onBalanceUpdate();
-    onSuccess();
-  }
+const PaymentModal = ({ userInfo, isVisible, onSuccess, onClose, totalAmount, balance }) => {
 
   return (
     <Modal
@@ -23,7 +19,7 @@ const PaymentModal = ({ userInfo, isVisible, onSuccess, onClose, totalAmount, ba
               <Text style={styles.amountLabelText}>Total Amount:</Text>
             </View>
             <View style={styles.amountValueContainer}>
-              <Text style={styles.amountText}>₱ {totalAmount}</Text>
+              <Text style={styles.amountText}>₱ {totalAmount.toFixed(2)}</Text>
             </View>
           </View>
           <View style={styles.amountContainer}>
@@ -38,7 +34,7 @@ const PaymentModal = ({ userInfo, isVisible, onSuccess, onClose, totalAmount, ba
             <TouchableOpacity onPress={onClose} style={styles.cancelButton}>
               <Text style={styles.buttonText}>Cancel</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={handlePayment} style={styles.payButton}>
+            <TouchableOpacity onPress={onSuccess} style={styles.payButton}>
               <Text style={styles.buttonText}>Pay</Text>
             </TouchableOpacity>
           </View>
@@ -110,6 +106,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
+    fontSize: 17,
   },
 });
 

@@ -8,11 +8,13 @@
 </head>
 <body>
     <div class="nav">
-        <img src="/src/frontend/admin/html/logo.png" alt="Company Logo" id="company-logo">
+        <div class="logo">
+            <div id="company-logo"></div>
+        </div>
         <h1 id="company-name">Food Mate Management System</h1>
         <ul>
-            <li id="nav-dashboard"><a onclick="loadDashboard(event)">Dashboard</a></li>
-            <li class="active" id="nav-products"><a onclick="loadProducts(event)">Viands</a></li>
+            <li class="active" id="nav-dashboard"><a onclick="loadDashboard(event)">Dashboard</a></li>
+            <li id="nav-products"><a onclick="loadProducts(event)">Viands</a></li>
             <li id="nav-users"><a onclick="loadUsers(event)">Users</a></li>
             <li id="nav-sales"><a onclick="loadSales(event)">Sales</a> </li>
         </ul>
@@ -29,6 +31,7 @@
     <script src="/js-user"></script>
     <script src="/js-product"></script>
     <script src="/js-sales"></script>
+    <script src="/js-dashboard"></script>
     <script src="/js-main"></script>
 </body>
 </html>

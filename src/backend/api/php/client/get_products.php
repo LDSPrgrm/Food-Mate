@@ -17,8 +17,7 @@
                 'stock' => $row['stock'],
                 'total_sales_quantity' => $row['total_sales_quantity'],
                 'total_sales_amount' => $row['total_sales_amount'],
-                'status_id' => $row['status_id'],
-                'type_id' => $row['type_id']
+                'status_id' => $row['status_id']
             );
         }
     }
