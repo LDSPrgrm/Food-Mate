@@ -1,22 +1,109 @@
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Management System Login</title>
-        <link rel="stylesheet" type="text/css" href="/css-login">
-    </head>
-    <body>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        form {
+            width: 300px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
     <form id="loginForm">
+        <h2>Admin Login</h2>
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" required>
 
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required>
 
-        <button type="button" onclick="login()">Login</button>
+        <button type="button" onclick="attemptLogin()">Login</button>
+
+        <div id="errorMessage" class="error-message"></div>
     </form>
-        
-        <script src="/js-login"></script>
-    </body>
-    </html>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+
+    <script>
+        const login = async (username, password) => {
+            try {
+                const response = await axios.post(
+                    'admin-login',
+                    { username, password },
+                    { headers: { 'Content-Type': 'application/json' } }
+                );
+
+                if (response.data.success) {
+                    // Admin login successful
+                    const { user_id, username, role_id } = response.data;
+                    console.log(`Welcome, ${username} (User ID: ${user_id}, Role ID: ${role_id})`);
+                    // Redirect to admin page or perform further actions
+                } else {
+                    // Admin login failed
+                    console.error(response.data.error);
+                    // Handle the error, e.g., show an error message
+                }
+            } catch (error) {
+                console.error('Error logging in:', error);
+                // Handle the error, e.g., show an error message
+            }
+        };
+
+        function attemptLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Reset error message
+            document.getElementById('errorMessage').innerText = '';
+
+            // Perform login
+            login(username, password);
+        }
+    </script>
+</body>
+
+</html>

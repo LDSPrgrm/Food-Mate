@@ -108,7 +108,7 @@ const TabNavigator = () => {
           tabBarBadgeStyle: { backgroundColor: 'yellow' },
           tabBarIcon: ({ color, size }) => (
             <Image
-              source={require('../assets/images/misc/order.png')}
+              source={require('../assets/images/misc/transactions.png')}
               style={{ width: size, height: size, tintColor: color }}
             />
           ),

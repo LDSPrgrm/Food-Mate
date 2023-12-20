@@ -55,7 +55,12 @@ const OrdersScreen = () => {
               <Row
                 data={['Product', 'Price', 'Quantity', 'Subtotal']}
                 style={styles.tableHeader}
-                textStyle={styles.tableHeaderText}
+                textStyle={{
+                  margin: 6,
+                  fontWeight: 'bold',
+                  textAlign: 'center',
+                  color: '#fff',
+                }}
               />
               <Rows
                 data={transaction.orders.map(order => [
@@ -64,7 +69,9 @@ const OrdersScreen = () => {
                   order.quantity,
                   `₱ ${order.subtotal}`,
                 ])}
-                textStyle={styles.tableText}
+                textStyle={{
+                  margin: 6,
+                }}
               />
             </Table>
             <Text style={styles.totalPriceText}>{`Total Price: ₱ ${calculateTotalPrice(transaction.orders)}`}</Text>
@@ -109,15 +116,6 @@ const styles = StyleSheet.create({
   tableHeader: {
     height: 40,
     backgroundColor: '#3EB075',
-  },
-  tableHeaderText: {
-    margin: 6,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#fff',
-  },
-  tableText: {
-    margin: 6,
   },
   tableTextLeft: {
     textAlign: 'left',

@@ -1,5 +1,33 @@
 import axios from 'axios';
 
+async function processPayment(user_id, products, totalAmount) {
+    try {
+        const response = await axios.post(
+            'http://192.168.100.142/Projects/E-Commerce/src/backend/api/php/client/process_payment.php',
+            { 
+                user_id: user_id,
+                products: products,
+                total_amount: totalAmount,
+            },
+            { 
+                headers: { 'Content-Type': 'application/json' } 
+            }
+        );
+
+        if (response.data.success) {
+            console.log(response.data.message);
+            await getUpdatedBalance(user_id);
+            return true;
+        } else {
+            console.error(response.data.error);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error processing payment:', error);
+        return false;
+    }
+}
+
 async function addOrder(user_id, product_id, quantity) {
     const products = [
         { product_id: product_id, quantity: quantity },

@@ -37,6 +37,8 @@ function fetchDataAndUpdateDashboard() {
 
             document.getElementById('totalSalesAmount').textContent = "₱ " + data.salesStatistics.totalSalesAmount.toFixed(2);
             document.getElementById('totalSalesQuantity').textContent = data.salesStatistics.totalSalesQuantity;
+            document.getElementById('topCustomer').textContent = data.salesStatistics.topCustomer;
+            document.getElementById('topCustomerTotalSpent').textContent = "₱ " + data.salesStatistics.topCustomerTotalSpent;
 
             // Update sales chart if needed
             // You can add logic to update the sales chart based on data.salesChartData

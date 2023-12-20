@@ -30,6 +30,14 @@ public class AdminManagementServer {
             int port = 9999;
             HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
 
+            server.createContext("/login", exchange -> {
+                contextCreation(exchange, "src/frontend/admin/html/login.html", "text/html");
+            });
+
+            server.createContext("/admin-login", exchange -> {
+                contextCreation(exchange, "src/frontend/admin/html/login.php", "text/html");
+            });
+
             // Main page
             server.createContext("/", exchange -> {
                 contextCreation(exchange, "src/frontend/admin/html/index.html", "text/html");
@@ -121,7 +129,9 @@ public class AdminManagementServer {
                     // Sales Statistics
                     String salesStatsSql = "SELECT " +
                             "(SELECT SUM(total_sales_amount) FROM products) AS totalSalesAmount, " +
-                            "(SELECT SUM(total_sales_quantity) FROM products) AS totalSalesQuantity;";
+                            "(SELECT SUM(total_sales_quantity) FROM products) AS totalSalesQuantity, " +
+                            "(SELECT u.username FROM users u JOIN orders o ON u.user_id = o.user_id GROUP BY u.user_id ORDER BY SUM(o.subtotal) DESC LIMIT 1) AS topCustomer, " +
+                            "(SELECT SUM(o.subtotal) AS total_spent FROM orders o WHERE o.user_id = (SELECT u.user_id FROM users u JOIN orders o ON u.user_id = o.user_id GROUP BY u.user_id ORDER BY SUM(o.subtotal) DESC LIMIT 1)) AS topCustomerTotalSpent;";
 
                     PreparedStatement salesStatsPreparedStatement = dbConnection.prepareStatement(salesStatsSql);
                     ResultSet salesStatsResultSet = salesStatsPreparedStatement.executeQuery();
@@ -129,8 +139,9 @@ public class AdminManagementServer {
                     JSONObject salesStatsJsonObject = new JSONObject();
                     if (salesStatsResultSet.next()) {
                         salesStatsJsonObject.put("totalSalesAmount", salesStatsResultSet.getFloat("totalSalesAmount"));
-                        salesStatsJsonObject.put("totalSalesQuantity",
-                                salesStatsResultSet.getInt("totalSalesQuantity"));
+                        salesStatsJsonObject.put("totalSalesQuantity", salesStatsResultSet.getInt("totalSalesQuantity"));
+                        salesStatsJsonObject.put("topCustomer", salesStatsResultSet.getString("topCustomer"));
+                        salesStatsJsonObject.put("topCustomerTotalSpent", salesStatsResultSet.getFloat("topCustomerTotalSpent"));
                     }
 
                     // Combine both user and product statistics

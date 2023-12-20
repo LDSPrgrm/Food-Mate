@@ -16,28 +16,35 @@ $selectStmt->bind_result($currentBalance);
 
 // Check if the user exists
 if ($selectStmt->fetch()) {
-    // User exists, update the balance
-    $newBalance = $currentBalance - $total_amount;
+    // User exists, check if the balance is sufficient
+    if ($currentBalance >= $total_amount) {
+        // Sufficient balance, proceed with the payment
+        $newBalance = $currentBalance - $total_amount;
 
-    // Close the previous result set
-    $selectStmt->close();
+        // Close the previous result set
+        $selectStmt->close();
 
-    // Update the balance
-    $updateSql = "UPDATE `users` SET balance = ? WHERE user_id = ?";
-    $updateStmt = $db_conn->prepare($updateSql);
-    $updateStmt->bind_param("di", $newBalance, $user_id);
+        // Update the balance
+        $updateSql = "UPDATE `users` SET balance = ? WHERE user_id = ?";
+        $updateStmt = $db_conn->prepare($updateSql);
+        $updateStmt->bind_param("di", $newBalance, $user_id);
 
-    if ($updateStmt->execute()) {
-        // Recharge successful, send a success response
-        header('Content-Type: application/json');
-        echo json_encode(['success' => true, 'message' => 'Payment successful.', 'balance' => $newBalance]);
+        if ($updateStmt->execute()) {
+            // Recharge successful, send a success response
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'message' => 'Payment successful.', 'balance' => $newBalance]);
+        } else {
+            // Update failed, send a failure response
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'Payment failed.']);
+        }
+
+        $updateStmt->close();
     } else {
-        // Update failed, send a failure response
+        // Insufficient balance, send a failure response
         header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'error' => 'Payment failed.']);
+        echo json_encode(['success' => false, 'error' => 'Insufficient balance.']);
     }
-
-    $updateStmt->close();
 } else {
     // User doesn't exist, send a failure response
     header('Content-Type: application/json');

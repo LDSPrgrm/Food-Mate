@@ -13,9 +13,12 @@ $sex = $data['sex'];
 $civilStatus = $data['civil_status'];
 $email = $data['email'];
 
+// Hash the password
+$hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
 $sql = "INSERT INTO `users` (username, password, first_name, middle_name, last_name, sex, civil_status, email) VALUES(?,?,?,?,?,?,?,?)";
 $stmt = $db_conn->prepare($sql);
-$stmt->bind_param("ssssssss", $username, $password, $firstName, $middleName, $lastName, $sex, $civilStatus, $email);
+$stmt->bind_param("ssssssss", $username, $hashedPassword, $firstName, $middleName, $lastName, $sex, $civilStatus, $email);
 
 if ($stmt->execute()) {
     // User exists, fetch user data and send a success response with user information
@@ -26,6 +29,7 @@ if ($stmt->execute()) {
     header('Content-Type: application/json');
     echo json_encode(['success' => false, 'error' => 'Invalid username or password.']);
 }
+
 // Close the connection
 $stmt->close();
 $db_conn->close();

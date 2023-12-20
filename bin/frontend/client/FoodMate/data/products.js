@@ -20,9 +20,9 @@ async function getSliderData() {
             description: product.description,
             price: product.price,
             stock: product.stock,
+            total_sales_quantity: product.total_sales_quantity,
+            total_sales_amount: product.total_sales_amount,
             status_id: product.status_id,
-            total_sales_quantity: total_sales_quantity,
-            total_sales_amount: total_sales_amount,
             // image: require('../assets/images/products/adobo.jpg'),
         }));
     } catch (error) {
@@ -42,6 +42,8 @@ async function getAvailableProductData() {
             description: product.description,
             price: `₱ ${product.price}`,
             stock: product.stock,
+            total_sales_quantity: product.total_sales_quantity,
+            total_sales_amount: product.total_sales_amount,
             status_id: product.status_id,
         }));
 }
@@ -57,6 +59,8 @@ async function getUnavailableProductData() {
             description: product.description,
             price: `₱ ${product.price}`,
             stock: product.stock,
+            total_sales_quantity: product.total_sales_quantity,
+            total_sales_amount: product.total_sales_amount,
             status_id: product.status_id,
         }));
 }
