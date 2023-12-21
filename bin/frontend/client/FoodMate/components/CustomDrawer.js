@@ -78,7 +78,7 @@ const CustomDrawer = props => {
         {...props}
         contentContainerStyle={{backgroundColor: '#3EB075'}}>
         <ImageBackground
-          source={require('../assets/images/misc/banner.jpg')}
+          source={require('../assets/images/misc/logo.png')}
           style={{padding: 20,}}>
           <Image
             source={require('../assets/images/misc/user-profile.jpg')}

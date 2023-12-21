@@ -47,16 +47,16 @@ public class AdminManagementServer {
                 try {
                     // Specify the path to your logo file
                     Path logoPath = Paths.get("src\\frontend\\admin\\src\\logo.png");
-            
+
                     // Read the logo file and send it as the response
                     byte[] logoBytes = Files.readAllBytes(logoPath);
-            
+
                     // Set the appropriate content type for an image (adjust if necessary)
                     exchange.getResponseHeaders().set("Content-Type", "image/png");
-            
+
                     // Send the logo image as the response body
                     exchange.sendResponseHeaders(200, logoBytes.length);
-            
+
                     OutputStream outputStream = exchange.getResponseBody();
                     outputStream.write(logoBytes);
                     outputStream.close();
@@ -66,13 +66,12 @@ public class AdminManagementServer {
                     String response = "Error serving the logo";
                     exchange.getResponseHeaders().set("Content-Type", "text/plain");
                     exchange.sendResponseHeaders(500, response.length());
-            
+
                     OutputStream outputStream = exchange.getResponseBody();
                     outputStream.write(response.getBytes());
                     outputStream.close();
                 }
             });
-            
 
             // Main page
             server.createContext("/dashboard", exchange -> {
@@ -130,7 +129,8 @@ public class AdminManagementServer {
                     String salesStatsSql = "SELECT " +
                             "(SELECT SUM(total_sales_amount) FROM products) AS totalSalesAmount, " +
                             "(SELECT SUM(total_sales_quantity) FROM products) AS totalSalesQuantity, " +
-                            "(SELECT u.username FROM users u JOIN orders o ON u.user_id = o.user_id GROUP BY u.user_id ORDER BY SUM(o.subtotal) DESC LIMIT 1) AS topCustomer, " +
+                            "(SELECT u.username FROM users u JOIN orders o ON u.user_id = o.user_id GROUP BY u.user_id ORDER BY SUM(o.subtotal) DESC LIMIT 1) AS topCustomer, "
+                            +
                             "(SELECT SUM(o.subtotal) AS total_spent FROM orders o WHERE o.user_id = (SELECT u.user_id FROM users u JOIN orders o ON u.user_id = o.user_id GROUP BY u.user_id ORDER BY SUM(o.subtotal) DESC LIMIT 1)) AS topCustomerTotalSpent;";
 
                     PreparedStatement salesStatsPreparedStatement = dbConnection.prepareStatement(salesStatsSql);
@@ -139,9 +139,11 @@ public class AdminManagementServer {
                     JSONObject salesStatsJsonObject = new JSONObject();
                     if (salesStatsResultSet.next()) {
                         salesStatsJsonObject.put("totalSalesAmount", salesStatsResultSet.getFloat("totalSalesAmount"));
-                        salesStatsJsonObject.put("totalSalesQuantity", salesStatsResultSet.getInt("totalSalesQuantity"));
+                        salesStatsJsonObject.put("totalSalesQuantity",
+                                salesStatsResultSet.getInt("totalSalesQuantity"));
                         salesStatsJsonObject.put("topCustomer", salesStatsResultSet.getString("topCustomer"));
-                        salesStatsJsonObject.put("topCustomerTotalSpent", salesStatsResultSet.getFloat("topCustomerTotalSpent"));
+                        salesStatsJsonObject.put("topCustomerTotalSpent",
+                                salesStatsResultSet.getFloat("topCustomerTotalSpent"));
                     }
 
                     // Combine both user and product statistics
@@ -164,6 +166,67 @@ public class AdminManagementServer {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
+            });
+
+            server.createContext("/transactions", exchange -> {
+                try {
+                    Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
+                    String sql = "SELECT " +
+                            "u.username, " +
+                            "o.order_id, " +
+                            "GROUP_CONCAT(p.name ORDER BY p.name SEPARATOR ', ') AS product_names, " +
+                            "SUM(o.quantity) AS total_quantity, " +
+                            "SUM(o.subtotal) AS total_subtotal, " +
+                            "MIN(o.order_date) AS order_date " +
+                            "FROM " +
+                            "users u " +
+                            "JOIN " +
+                            "orders o ON u.user_id = o.user_id " +
+                            "JOIN " +
+                            "products p ON o.product_id = p.product_id " +
+                            "GROUP BY " +
+                            "u.user_id, o.order_id " +
+                            "ORDER BY " +
+                            "MIN(o.order_date) DESC;";
+            
+                    PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
+                    ResultSet resultSet = preparedStatement.executeQuery();
+            
+                    JSONArray jsonArray = new JSONArray();
+                    while (resultSet.next()) {
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("username", resultSet.getString("username"));
+                        jsonObject.put("order_id", resultSet.getInt("order_id"));
+                        jsonObject.put("product_names", resultSet.getString("product_names"));
+                        jsonObject.put("total_quantity", resultSet.getInt("total_quantity"));
+                        jsonObject.put("total_subtotal", resultSet.getFloat("total_subtotal"));
+                        jsonObject.put("order_date", resultSet.getString("order_date"));
+                        jsonArray.put(jsonObject);
+                    }
+            
+                    String json = jsonArray.toString();
+                    exchange.getResponseHeaders().set("Content-Type", "application/json");
+                    exchange.sendResponseHeaders(200, json.length());
+            
+                    OutputStream outputStream = exchange.getResponseBody();
+                    outputStream.write(json.getBytes());
+            
+                    outputStream.close();
+                    preparedStatement.close();
+                    dbConnection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            });
+            
+
+            server.createContext("/transactions-content", exchange -> {
+                contextCreation(exchange, "src/frontend/admin/html/transactions.html", "text/html");
+            });
+
+            // Main page
+            server.createContext("/js-transactions", exchange -> {
+                contextCreation(exchange, "src/frontend/admin/js/transactions.js", "text/javascript");
             });
 
             // Main page CSS
