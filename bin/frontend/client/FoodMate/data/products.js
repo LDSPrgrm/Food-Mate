@@ -2,7 +2,7 @@ import axios from 'axios';
 
 async function getProductData() {
     try {
-        const response = await axios.get('http://192.168.100.142/Projects/E-Commerce/src/backend/api/php/client/get_products.php');
+        const response = await axios.get('http://192.168.108.88/Projects/E-Commerce/src/backend/api/php/client/get_products.php');
         return response.data;
     } catch (error) {
         console.error('Error fetching product data:', error);

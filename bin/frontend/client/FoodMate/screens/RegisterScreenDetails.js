@@ -40,7 +40,7 @@ const RegisterScreenDetails = ({navigation}) => {
     if(password === confirmPassword) {
       try {
         const response = await axios.post(
-          'http://192.168.100.142/Projects/E-Commerce/src/backend/api/php/client/insert_user.php',
+          'http://192.168.108.88/Projects/E-Commerce/src/backend/api/php/client/insert_user.php',
           { 
             username: username,
             password: password,

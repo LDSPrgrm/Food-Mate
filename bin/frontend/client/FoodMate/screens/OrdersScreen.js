@@ -16,7 +16,7 @@ const OrdersScreen = () => {
       user_id: userInfo.user_id,
     };
 
-    fetch('http://192.168.100.142/Projects/E-Commerce/src/backend/api/php/client/get_past_transactions.php', {
+    fetch('http://192.168.108.88/Projects/E-Commerce/src/backend/api/php/client/get_past_transactions.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

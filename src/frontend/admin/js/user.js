@@ -132,6 +132,7 @@ function deleteUser(id){
         })
         .then(response => response.json())
         .then(jsonData => {
+            console.log(jsonData);
             // Clear the existing table content
             table.innerHTML = '';
             
@@ -173,7 +174,7 @@ function updateUser(id){
         document.getElementById("email").value = jsonData.email;
 
         document.getElementById("create-form").scrollIntoView({ behavior: 'smooth', block: 'start' });
-        document.getElementById("form-title").textContent = "Update User | ID: " + jsonData.user_id;
+        document.getElementById("form-title").textContent = "Update User | " + jsonData.username;
     })
     .catch(error =>{
         console.error('Error fetching data:', error);
@@ -319,6 +320,9 @@ function refreshUsers(row, rows) {
     const tdEmail = document.createElement("td");
     tdEmail.textContent = row.email;
 
+    const tdBalance = document.createElement("td");
+    tdBalance.textContent = "₱ " + (row.balance).toFixed(2);
+
     const tdAction = document.createElement('td');
     const deleteButton = document.createElement('button');
     deleteButton.classList.add("delete-button");
@@ -345,6 +349,7 @@ function refreshUsers(row, rows) {
     tr.appendChild(tdSex);
     tr.appendChild(tdCivilStatus);
     tr.appendChild(tdEmail);
+    tr.appendChild(tdBalance);
     tr.appendChild(tdAction)
 
     // Add this tr to the table

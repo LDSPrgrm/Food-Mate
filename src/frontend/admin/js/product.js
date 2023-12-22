@@ -153,7 +153,7 @@ function updateProduct(id){
         document.getElementById("stock").value = jsonData.stock;
 
         document.getElementById("create-form").scrollIntoView({ behavior: 'smooth', block: 'start' });
-        document.getElementById("form-title").textContent = "Update Product | ID: " + jsonData.product_id;
+        document.getElementById("form-title").textContent = "Update Product | " + jsonData.name;
     })
     .catch(error =>{
         console.error('Error fetching data:', error);

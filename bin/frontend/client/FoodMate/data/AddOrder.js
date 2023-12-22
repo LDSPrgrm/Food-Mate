@@ -3,7 +3,7 @@ import axios from 'axios';
 async function processPayment(user_id, products, totalAmount) {
     try {
         const response = await axios.post(
-            'http://192.168.100.142/Projects/E-Commerce/src/backend/api/php/client/process_payment.php',
+            'http://192.168.108.88/Projects/E-Commerce/src/backend/api/php/client/process_payment.php',
             { 
                 user_id: user_id,
                 products: products,
@@ -35,7 +35,7 @@ async function addOrder(user_id, product_id, quantity) {
 
     try {
         const response = await axios.post(
-            'http://192.168.100.142/Projects/E-Commerce/src/backend/api/php/client/insert_order.php',
+            'http://192.168.108.88/Projects/E-Commerce/src/backend/api/php/client/insert_order.php',
             { 
                 user_id: user_id,
                 products: products,
@@ -56,7 +56,7 @@ async function addOrder(user_id, product_id, quantity) {
 async function deductPayment(user_id, totalAmount) {
     try {
         await axios.post(
-            'http://192.168.100.142/Projects/E-Commerce/src/backend/api/php/client/deduct_payment.php',
+            'http://192.168.108.88/Projects/E-Commerce/src/backend/api/php/client/deduct_payment.php',
             { 
               user_id: user_id,
               total_amount: totalAmount,
@@ -77,7 +77,7 @@ async function deductPayment(user_id, totalAmount) {
 async function getUpdatedBalance(user_id) {
     try {
         await axios.post(
-            'http://192.168.100.142/Projects/E-Commerce/src/backend/api/php/client/get_balance.php',
+            'http://192.168.108.88/Projects/E-Commerce/src/backend/api/php/client/get_balance.php',
             { 
               user_id: user_id,
             },

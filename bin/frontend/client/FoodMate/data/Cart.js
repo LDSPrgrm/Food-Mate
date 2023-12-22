@@ -2,7 +2,7 @@ import axios from 'axios';
 const addToCart = async (user_id, product_id, quantity) => {
   try {
     const response = await axios.post(
-      'http://192.168.100.142/Projects/E-Commerce/src/backend/api/php/client/add_to_cart.php',
+      'http://192.168.108.88/Projects/E-Commerce/src/backend/api/php/client/add_to_cart.php',
       {
         user_id: user_id,
         product_id: product_id,
@@ -17,7 +17,7 @@ const addToCart = async (user_id, product_id, quantity) => {
 async function updateCartDetails(user_id, product_id, quantity, subtotal) {
     try {
         axios.post(
-            'http://192.168.100.142/Projects/E-Commerce/src/backend/api/php/client/update_cart_details.php',
+            'http://192.168.108.88/Projects/E-Commerce/src/backend/api/php/client/update_cart_details.php',
             { 
               user_id: user_id,
               product_id: product_id,
@@ -40,7 +40,7 @@ async function updateCartDetails(user_id, product_id, quantity, subtotal) {
 function deleteFromCart(user_id, product_id) {
     try {
         axios.post(
-            'http://192.168.100.142/Projects/E-Commerce/src/backend/api/php/client/remove_from_cart.php',
+            'http://192.168.108.88/Projects/E-Commerce/src/backend/api/php/client/remove_from_cart.php',
             { 
               user_id: user_id,
               product_id: product_id,
@@ -61,7 +61,7 @@ function deleteFromCart(user_id, product_id) {
 async function getCartCount(username) {
     try {
         const response = await axios.post(
-            'http://192.168.100.142/Projects/E-Commerce/src/backend/api/php/client/get_user_cart_count.php', 
+            'http://192.168.108.88/Projects/E-Commerce/src/backend/api/php/client/get_user_cart_count.php', 
             {
                 username: username,
             }
@@ -76,7 +76,7 @@ async function getCartCount(username) {
 async function getCartDetails(user_id) {
     try {
         const response = await axios.post(
-            'http://192.168.100.142/Projects/E-Commerce/src/backend/api/php/client/get_user_cart_details.php',
+            'http://192.168.108.88/Projects/E-Commerce/src/backend/api/php/client/get_user_cart_details.php',
             {
                 user_id: user_id,
             }
@@ -91,7 +91,7 @@ async function getCartDetails(user_id) {
 async function recharge(user_id, balance) {
   try {
       const response = await axios.post(
-          'http://192.168.100.142/Projects/E-Commerce/src/backend/api/php/client/add_balance.php',
+          'http://192.168.108.88/Projects/E-Commerce/src/backend/api/php/client/add_balance.php',
           {
             user_id: user_id,
             balance: balance,

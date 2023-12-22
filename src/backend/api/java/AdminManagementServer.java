@@ -636,6 +636,7 @@ public class AdminManagementServer {
                         jsonObject.put("sex", resultSet.getString("sex"));
                         jsonObject.put("civil_status", resultSet.getString("civil_status"));
                         jsonObject.put("email", resultSet.getString("email"));
+                        jsonObject.put("balance", resultSet.getFloat("balance"));
                         jsonArray.put(jsonObject);
                     }
 
@@ -771,12 +772,12 @@ public class AdminManagementServer {
                         Connection dbConnection = DriverManager.getConnection(URL, USER, PASSWORD);
 
                         // SQL query to delete data
-                        String sql = "DELETE FROM users WHERE product_id = ?";
+                        String sql = "DELETE FROM users WHERE user_id = ?";
 
                         resetAutoIncrement(dbConnection, sql, "users", id);
 
                         sql = "SELECT * FROM users";
-                        selectAllProducts(dbConnection, exchange, sql);
+                        selectAllUsers(dbConnection, exchange, sql);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }

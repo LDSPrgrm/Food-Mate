@@ -24,7 +24,6 @@ function fetchDataAndUpdateDashboard() {
         .then(response => response.json())
         .then(data => {
             // Update user statistics
-            console.log(data);
             document.getElementById('totalUsers').textContent = data.userStatistics.totalUsers;
             document.getElementById('adminCount').textContent = data.userStatistics.adminCount;
             document.getElementById('clientCount').textContent = data.userStatistics.clientCount;

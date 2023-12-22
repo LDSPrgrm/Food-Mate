@@ -14,7 +14,7 @@ export const AuthProvider = ({children}) => {
         setIsLoading(true);
 
         axios.post(
-            'http://192.168.100.142/Projects/E-Commerce/src/backend/api/php/client/get_users.php',
+            'http://192.168.108.88/Projects/E-Commerce/src/backend/api/php/client/get_users.php',
             { 
               username: username,
               password: password
