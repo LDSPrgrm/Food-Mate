@@ -21,6 +21,7 @@ const CustomDrawer = props => {
   const {logout} = useContext(AuthContext);
   const {userInfo} = useContext(AuthContext);
   const [isRechargeModalVisible, setRechargeModalVisible] = useState(false);
+  const [balance, setBalance] = useState(parseFloat(userInfo.balance));
 
   const handleLogoutPress = (logout) => {
     Alert.alert(
@@ -89,6 +90,7 @@ const CustomDrawer = props => {
               fontSize: 18,
               marginBottom: 5,
             }}>
+            {userInfo.username}
           </Text>
           <View style={{flexDirection: 'row', 
             alignItems: 'center', 
@@ -99,6 +101,7 @@ const CustomDrawer = props => {
                 fontSize: 18,
                 marginRight: 5,
               }}>
+              ₱ {balance.toFixed(2)}
             </Text>
             <TouchableOpacity onPress={handleRechargePress} style={{
               backgroundColor: '#3EB075',
