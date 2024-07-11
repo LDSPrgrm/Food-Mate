@@ -7,11 +7,6 @@ Food Mate is an online ordering and management system designed to streamline the
 1. [Introduction](#introduction)
 2. [Features](#features)
 3. [Technical Specifications](#technical-specifications)
-4. [Database Schema](#database-schema)
-5. [Setup and Installation](#setup-and-installation)
-6. [Usage](#usage)
-7. [Contributing](#contributing)
-8. [License](#license)
 
 ## Introduction
 
