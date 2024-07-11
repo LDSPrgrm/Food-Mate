@@ -1,263 +1,57 @@
-<<<<<<< HEAD
-# SkyMarket - Online Ordering Mobile Application
-SkyMarket 
-=======
-I'm gonna create a e-commerce mobile application, something like McDo app or FoodPanda. In this app, users can choose what item to order and pay and then that transaction saves into the database using SQL. In the mobile app, I'm gonna use React Native as front-end and PHP as back-end. This app is for the clients.
+# Food Mate E-Commerce System
 
-Second, I'm gonna create a website management tool for admins. It is used to add, display, update, and delete information about products. I'm planning to use html or php file for this as front-end. And I'm gonna use java as it's back-end. Still, I'm gonna use SQL queries to communicate with the database.
+Food Mate is an online ordering and management system designed to streamline the shopping experience for users and administrators alike.
 
-### Mobile App Development (React Native + PHP):
+## Table of Contents
 
-1. Project Setup:
-   - Set up your development environment for React Native.
-   - Create a new React Native project.
+1. [Introduction](#introduction)
+2. [Features](#features)
+3. [Technical Specifications](#technical-specifications)
+4. [Database Schema](#database-schema)
+5. [Setup and Installation](#setup-and-installation)
+6. [Usage](#usage)
+7. [Contributing](#contributing)
+8. [License](#license)
 
-2. User Authentication:
-   - Implement user authentication for secure login and registration.
+## Introduction
 
-3. Product Listing:
-   - Create a product listing page where users can view available items.
+Food Mate aims to solve the inconvenience of traditional shopping methods by offering a user-friendly platform for online ordering and management. It consists of a mobile application for clients and a web-based management tool for administrators.
 
-4. Shopping Cart:
-   - Develop a shopping cart system for users to add and manage their selected items.
+## Features
 
-5. Checkout and Payment:
-   - Implement a secure checkout process with payment integration.
-   - Save transaction details in the database using PHP backend.
+### Mobile App (Client Side):
 
-6. Database Integration:
-   - Set up a MySQL database.
-   - Use PHP to handle database interactions, storing and retrieving product and transaction data.
+- **User Authentication**: Secure login and registration.
+- **Product Listing**: View available items categorized by type.
+- **Shopping Cart**: Manage selected items before checkout.
+- **Checkout and Payment**: Secure payment integration and transaction logging.
+- **User Profile Management**: View and edit personal details.
 
-7. User Profile:
-   - Allow users to view and edit their profiles.
+### Website Management Tool (Admin Side):
 
-8. Notifications:
-   - Implement push notifications for order updates and promotions.
+- **Secure Admin Login**: Access control for administrators.
+- **Dashboard**: Overview of key metrics and system status.
+- **Product Management**: CRUD operations for product information.
+- **User Management**: Manage user accounts and roles.
+- **Order Management**: View and process customer orders.
+- **Reporting**: Generate reports on sales and product popularity.
 
-9. Testing:
-   - Conduct thorough testing, including unit testing and user acceptance testing.
+## Technical Specifications
 
-10. Deployment:
-    - Deploy the mobile app on app stores (e.g., Google Play Store, Apple App Store).
+### Mobile App:
 
-### Website Management Tool (HTML/PHP + Java):
+- **Framework**: React Native
+- **Backend**: PHP
+- **Database**: MariaDB/MySQL
 
-1. Admin Panel Setup:
-   - Create a secure login for administrators.
+### Website Management Tool:
 
-2. Dashboard:
-   - Develop a dashboard for admins to get an overview of key metrics.
+- **Frontend**: HTML/PHP
+- **Backend**: Java
+- **Database**: MariaDB/MySQL
 
-3. Product Management:
-   - Implement CRUD operations for managing product information.
-   - Ensure seamless integration with the existing database.
+## Database Schema
 
-4. User Management:
-   - Create functionalities for admins to manage user accounts.
+The project uses MySQL with the following schema:
 
-5. Order Management:
-   - Provide tools for admins to view and manage customer orders.
-
-6. Reporting:
-   - Implement reporting features for sales, product popularity, etc.
-
-7. Security Measures:
-   - Incorporate security measures to protect against unauthorized access.
-
-8. Testing:
-   - Conduct thorough testing of the admin tool, including security testing.
-
-9. Deployment:
-   - Deploy the admin tool on a secure server.
-
-10. Documentation:
-    - Prepare comprehensive documentation for future maintenance and updates.
-
-You will create an E-Commerce system with a full transaction for the final project. Thus, you can create a system for online ordering, booking, or service providers. 
-
-1. Name of the System: What would be the name of your system or your application?
-2. Find the problem: What is the problem/s encountered?
-3. Research into competitors: Look for applications and websites with the same as yours.
-4. Feature mapping: Plot the features that you want your application to have.
-5. Technical Requirements Specification: What OS do you want it to work on? What smartphone screens do you want your design to be suited to?
-6. The setting of costs and deadlines. What is your estimate cost, and what is the timeline for your application development? How many days or week would you design and develop the system?
-
-### E-Commerce System: SkyMarket
-
-1. Name of the System:
-   - SkyMarket
-
-2. Find the Problem:
-   - The problem is the inconvenience faced by users in traditional shopping, especially in the context of food and product delivery. SkyMarket aims to streamline the process by providing a user-friendly platform for online ordering and delivery.
-
-3. Research into Competitors:
-   - Analyze competitors like McDo app, FoodPanda, and other popular e-commerce platforms. Identify strengths, weaknesses, and areas for improvement.
-
-4. Feature Mapping:
-
-   Mobile App (Client Side):
-   - User Authentication (Login/Registration)
-   - Product Listing with Categories
-   - Shopping Cart Management
-   - Secure Checkout and Payment Integration
-   - Transaction Logging in the Database
-   - User Profile Management
-   - Push Notifications for Order Updates
-   - Thorough Testing (Unit Testing, UAT)
-   - Deployment on App Stores
-
-   Website Management Tool (Admin Side):
-   - Secure Admin Login
-   - Dashboard for Key Metrics Overview
-   - Product CRUD Operations
-   - User Account Management
-   - Order Viewing and Management
-   - Reporting (Sales, Product Popularity, etc.)
-   - Security Measures Implementation
-   - Thorough Testing (Security Testing)
-   - Deployment on a Secure Server
-   - Comprehensive Documentation
-
-5. Technical Requirements Specification:
-   - Mobile App:
-     - OS: Android and iOS
-     - Screen Sizes: Suited for various smartphone screens
-
-   - Website Management Tool:
-     - OS: Platform-independent (Java-based)
-     - Browser Compatibility: Latest versions of major browsers (Chrome, Firefox, Safari)
-
-6. Setting of Costs and Deadlines:
-   - Cost Estimate:
-     - Mobile App Development: $X
-     - Website Management Tool: $Y
-     - Database Hosting: $Z
-     - Total: $X + $Y + $Z
-
-   - Timeline:
-     - Mobile App Development: 8 weeks
-     - Website Management Tool: 6 weeks
-     - Testing and Refinement: 4 weeks
-     - Deployment and Documentation: 2 weeks
-     - Total: 20 weeks
-
-   Note: Costs and timelines are approximate and subject to adjustment based on project complexity and specific requirements.
-
-6. Additional Considerations:
-   - Marketing Strategy:
-     - Develop a marketing plan to promote SkyMarket and attract users.
-     - Consider partnerships with local businesses for promotions and discounts.
-
-   - Customer Support:
-     - Implement a customer support system for user assistance.
-     - Integrate feedback mechanisms for continuous improvement.
-
-   - Scalability:
-     - Design the system to be scalable for potential future expansions.
-     - Consider future updates and feature enhancements.
-
-   - Legal Compliance:
-     - Ensure compliance with data protection and privacy regulations.
-     - Clearly outline terms of service and user policies.
-
-SkyMarket aims to provide a seamless and secure online shopping experience for users, addressing the challenges faced in traditional shopping methods.
-
-Run Command:
-cd C:\xampp\htdocs\Projects\E-Commerce\
-php -S localhost:9999 src\backend\api\php\AdminManagementServer.php
-<<<<<<< HEAD
-
-
-### SQL Queries
-CREATE DATABASE ecommerce; 
-USE ecommerce;
-
--- User Table
-CREATE TABLE `user` (
-    user_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255) NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    role VARCHAR(20) NOT NULL
-);
-
--- Product Table
-CREATE TABLE product (
-    product_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    price DECIMAL(10, 2) NOT NULL,
-    stock INT NOT NULL
-);
-
--- Order Table
-CREATE TABLE `order` (
-    order_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    order_date TIMESTAMP NOT NULL DEFAULT current_timestamp(),
-    total_amount DECIMAL(10, 2) NOT NULL,
-    status VARCHAR(20) NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES `user`(user_id)
-);
-
--- Junction Tables
--- Order Item Table
-CREATE TABLE orderItem (
-    order_item_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    order_id INT NOT NULL,
-    product_id INT NOT NULL,
-    stock INT NOT NULL,
-    subtotal DECIMAL(10, 2) NOT NULL,
-    FOREIGN KEY (order_id) REFERENCES `order`(order_id),
-    FOREIGN KEY (product_id) REFERENCES product(product_id)
-);
-
--- Role Table
-CREATE TABLE `role` (
-    role_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    role_name VARCHAR(20) NOT NULL
-);
-
--- User Role Table
-CREATE TABLE userRole (
-    user_role_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    role_id INT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES `user`(user_id),
-    FOREIGN KEY (role_id) REFERENCES `role`(role_id)
-);
-
--- Product Order Item Table
-CREATE TABLE productOrderItem (
-    product_order_item_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    order_item_id INT NOT NULL,
-    product_id INT NOT NULL,
-    FOREIGN KEY (order_item_id) REFERENCES orderItem(order_item_id),
-    FOREIGN KEY (product_id) REFERENCES product(product_id)
-);
-
-### Relationships:
-User-Order Relationship:
-One-to-Many (1:N)
-A user can place multiple orders, but each order is placed by a single user.
-
-Product-OrderItem Relationship:
-One-to-Many (1:N)
-Each product in an order is represented as an order item, but a product can be present in multiple order items across different orders.
-
-Order-OrderItem Relationship:
-One-to-Many (1:N)
-An order can have multiple order items, but each order item belongs to a specific order.
-
-User-Role Relationship:
-One-to-Many (1:N)
-Each user has a specific role (Client or Admin), but a role can be associated with multiple users.
-
-Run Command: 
-PHP Server
-cd C:\xampp\htdocs\Projects\E-Commerce
-php -S localhost:9999 src\backend\api\php\admin\index.php
-
-Mobile App
-C:\xampp\htdocs\Projects\E-Commerce\src\frontend\client\FoodMate
+- User, Product, Order, OrderItem, Role, UserRole, ProductOrderItem
